@@ -53,12 +53,12 @@ class IngresosView(MasterView):
         # 2. SQL Cliente (Update o Insert de datos básicos)
         sql_cliente = f"""
             IF NOT EXISTS(SELECT 1 FROM MV_INGRESOS_CLIENTES WHERE Dni='{dni}')
-                INSERT INTO MV_INGRESOS_CLIENTES (ApellidoNombre, Dni, Nacionalidad, Direccion, ModeloVehiculo, Ciudad, Patente)
-                VALUES ('{data.get('apellido_nombre','')}', '{dni}', '{data.get('nacionalidad','')}', '{data.get('direccion','')}', '{data.get('modelo_vehiculo','')}', '{data.get('ciudad','')}', '{patente}');
+                INSERT INTO MV_INGRESOS_CLIENTES (ApellidoNombre, Dni, Nacionalidad, Direccion, ModeloVehiculo, Ciudad, Patente, Telefono)
+                VALUES ('{data.get('apellido_nombre','')}', '{dni}', '{data.get('nacionalidad','')}', '{data.get('direccion','')}', '{data.get('modelo_vehiculo','')}', '{data.get('ciudad','')}', '{patente}', '{data.get('telefono','')}');
             ELSE
                 UPDATE MV_INGRESOS_CLIENTES SET 
                     ApellidoNombre = '{data.get('apellido_nombre','')}', Nacionalidad = '{data.get('nacionalidad','')}', Direccion = '{data.get('direccion','')}', 
-                    ModeloVehiculo = '{data.get('modelo_vehiculo','')}', Ciudad = '{data.get('ciudad','')}', Patente = '{patente}' 
+                    ModeloVehiculo = '{data.get('modelo_vehiculo','')}', Ciudad = '{data.get('ciudad','')}', Patente = '{patente}', Telefono = '{data.get('telefono','')}' 
                 WHERE Dni = '{dni}';
         """
 
@@ -134,11 +134,12 @@ class IngresosView(MasterView):
         modelo_vehiculo = data.get('modelo_vehiculo', '')
         ciudad = data.get('ciudad', '')
         patente = data.get('patente', '')
+        telefono = data.get('telefono', '')
         
         sql = f"""
-        INSERT INTO MV_INGRESOS_CLIENTES (ApellidoNombre, Dni, Nacionalidad, Direccion, ModeloVehiculo, Ciudad, Patente)
+        INSERT INTO MV_INGRESOS_CLIENTES (ApellidoNombre, Dni, Nacionalidad, Direccion, ModeloVehiculo, Ciudad, Patente, Telefono)
         VALUES
-        ('{apellido_nombre}', '{dni}', '{nacionalidad}', '{direccion}', '{modelo_vehiculo}', '{ciudad}', '{patente}')
+        ('{apellido_nombre}', '{dni}', '{nacionalidad}', '{direccion}', '{modelo_vehiculo}', '{ciudad}', '{patente}', '{telefono}')
         """
 
         # sql = "DELETE FROM MV_INGRESOS_CLIENTES"
