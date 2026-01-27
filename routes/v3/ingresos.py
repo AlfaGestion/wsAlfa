@@ -286,3 +286,43 @@ class IngresosView(MasterView):
             json.dumps(response, ensure_ascii=False),
             mimetype="application/json"
         )
+
+    @route('/ingresospendientes/search', methods=['GET'])
+    def ingresospendientes_search(self):
+        search = request.args.get('search', '').strip()
+
+        if not search:
+            from flask import Response, json
+            empty_response = set_response([], 200, "")
+            return Response(
+                json.dumps(empty_response, ensure_ascii=False),
+                mimetype="application/json"
+            )
+
+        sql = f"""
+        SELECT Ingreso, Egreso, ApellidoNombre, Parcela, Dni, Patente
+        FROM vt_mv_ingresos_pendientes
+        WHERE ApellidoNombre LIKE '%{search}%'
+           OR Dni LIKE '%{search}%'
+           OR Patente LIKE '%{search}%'
+           OR CAST(Parcela AS VARCHAR(50)) LIKE '%{search}%'
+        """
+
+        result, error = get_customer_response(sql, f" al buscar ingresos pendientes.", True, self.token_global)
+        if not error and isinstance(result, list):
+            for row in result:
+                if isinstance(row, dict):
+                    for key, value in row.items():
+                        if isinstance(value, (datetime, date)):
+                            row[key] = value.isoformat()
+
+        response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
+
+        from flask import Response, json
+        if error:
+            self.log({result}, "ERROR")
+
+        return Response(
+            json.dumps(response, ensure_ascii=False),
+            mimetype="application/json"
+        )
