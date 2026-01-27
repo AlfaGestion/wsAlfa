@@ -266,7 +266,7 @@ class IngresosView(MasterView):
     def ingresospendientes(self):
 
         sql = f"""
-        SELECT Parcela from vt_mv_ingresos_pendientes
+        SELECT Ingreso,Egreso, ApellidoNombre, Parcela,Dni from vt_mv_ingresos_pendientes
         """
         
         result, error = get_customer_response(sql, f" al obtener los ingresos pendientes.", True, self.token_global)

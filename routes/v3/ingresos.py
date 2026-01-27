@@ -2,9 +2,9 @@ from functions.general_customer import get_customer_response, exec_customer_sql
 from functions.responses import set_response
 from routes.v2.master import MasterView
 from flask_classful import route
-from flask import request
+from flask import request, jsonify
 from functions.Log import Log
-from datetime import datetime 
+from datetime import datetime, date
 
 class IngresosView(MasterView):
     def get(self):
@@ -23,7 +23,7 @@ class IngresosView(MasterView):
         if error:
             self.log({result}, "ERROR")
         
-        return response
+        return jsonify(response)
     
     def post(self):
         data = request.get_json()
@@ -264,13 +264,25 @@ class IngresosView(MasterView):
     def ingresospendientes(self):
 
         sql = f"""
-        SELECT Parcela from vt_mv_ingresos_pendientes
+        SELECT Ingreso,Egreso, ApellidoNombre, Parcela,Dni from vt_mv_ingresos_pendientes
         """
         
         result, error = get_customer_response(sql, f" al obtener los ingresos pendientes.", True, self.token_global)
+        if not error and isinstance(result, list):
+            for row in result:
+                if isinstance(row, dict):
+                    for key, value in row.items():
+                        if isinstance(value, (datetime, date)):
+                            row[key] = value.isoformat()
         response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
-        
+
+        from flask import Response, json
+        #return jsonify(response)
+
         if error:
             self.log({result}, "ERROR")
         
-        return response        
+        return Response(
+            json.dumps(response, ensure_ascii=False),
+            mimetype="application/json"
+        )
