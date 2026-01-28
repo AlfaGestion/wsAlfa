@@ -370,8 +370,7 @@ class IngresosView(MasterView):
         response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
 
         from flask import Response, json
-        print(response)
-        
+
         if error:
             self.log({result}, "ERROR")
 
