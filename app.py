@@ -17,6 +17,7 @@ from routes.v2.family import FamilyView
 from routes.v2.helpdesk import HelpDeskView
 from routes.v2.management import ManagementView
 from routes.v2.order import OrderView
+from routes.v2.order_c import OrderCView
 from routes.v2.payment import PaymentView
 from routes.v2.product import ProductView
 from routes.v2.products import ProductsView
@@ -150,6 +151,7 @@ CustomerView.register(app, route_base=f'{API_PREFIX}/customer')
 ProductView.register(app, route_base=f'{API_PREFIX}/product')
 PaymentView.register(app, route_base=f'{API_PREFIX}/payment')
 OrderView.register(app, route_base=f'{API_PREFIX}/order')
+OrderCView.register(app, route_base=f'{API_PREFIX}/order_c')
 BrandView.register(app, route_base=f'{API_PREFIX}/brand')
 UnitView.register(app, route_base=f'{API_PREFIX}/unit')
 
