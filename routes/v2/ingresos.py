@@ -2,9 +2,9 @@ from functions.general_customer import get_customer_response, exec_customer_sql
 from functions.responses import set_response
 from routes.v2.master import MasterView
 from flask_classful import route
-from flask import request
+from flask import request, jsonify
 from functions.Log import Log
-from datetime import datetime 
+from datetime import datetime, date
 
 class IngresosView(MasterView):
     def get(self):
@@ -23,7 +23,7 @@ class IngresosView(MasterView):
         if error:
             self.log({result}, "ERROR")
         
-        return response
+        return jsonify(response)
     
     def post(self):
         data = request.get_json()
@@ -65,7 +65,6 @@ class IngresosView(MasterView):
         # 3. SQL Movimiento (Lógica: Si existe actualiza, si no existe crea)
         campo_egreso_real = f", EgresoReal = '{egreso_real_actual}'" if egresar else ""
         mensaje_exito = "Operación realizada con éxito."
-
         sql_movimiento = f"""
             UPDATE MV_INGRESOS SET 
                 ApellidoNombre = '{data.get('apellido_nombre','')}', Egreso = '{data.get('egreso','')}', 
@@ -114,7 +113,6 @@ class IngresosView(MasterView):
 
         # 4. Ejecución Final
         sql_final = sql_cliente + sql_movimiento
-        
         result, error = exec_customer_sql(sql_final, "al procesar movimiento", self.token_global)
 
         if error:
@@ -220,7 +218,7 @@ class IngresosView(MasterView):
         
         result, error = get_customer_response(sql, f" al obtener los precios .", True, self.token_global)
         response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
-        
+        print(response) 
         if error:
             self.log({result}, "ERROR")
         
@@ -270,9 +268,192 @@ class IngresosView(MasterView):
         """
         
         result, error = get_customer_response(sql, f" al obtener los ingresos pendientes.", True, self.token_global)
+        if not error and isinstance(result, list):
+            for row in result:
+                if isinstance(row, dict):
+                    for key, value in row.items():
+                        if isinstance(value, (datetime, date)):
+                            row[key] = value.isoformat()
         response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
-        
+
+        from flask import Response, json
+        #return jsonify(response)
+
         if error:
             self.log({result}, "ERROR")
         
-        return response        
+        return Response(
+            json.dumps(response, ensure_ascii=False),
+            mimetype="application/json"
+        )
+
+    @route('/ingresospendientes/search', methods=['GET'])
+    def ingresospendientes_search(self):
+        search = request.args.get('search', '').strip()
+
+        if not search:
+            from flask import Response, json
+            empty_response = set_response([], 200, "")
+            return Response(
+                json.dumps(empty_response, ensure_ascii=False),
+                mimetype="application/json"
+            )
+
+        sql = f"""
+        SELECT Ingreso, Egreso, ApellidoNombre, Parcela, Dni, Patente
+        FROM vt_mv_ingresos_pendientes
+        WHERE ApellidoNombre LIKE '%{search}%'
+           OR Dni LIKE '%{search}%'
+           OR Patente LIKE '%{search}%'
+           OR CAST(Parcela AS VARCHAR(50)) LIKE '%{search}%'
+        """
+
+        result, error = get_customer_response(sql, f" al buscar ingresos pendientes.", True, self.token_global)
+        if not error and isinstance(result, list):
+            for row in result:
+                if isinstance(row, dict):
+                    for key, value in row.items():
+                        if isinstance(value, (datetime, date)):
+                            row[key] = value.isoformat()
+
+        response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
+
+        from flask import Response, json
+        if error:
+            self.log({result}, "ERROR")
+
+        return Response(
+            json.dumps(response, ensure_ascii=False),
+            mimetype="application/json"
+        )
+
+    @route('/estadisticas', methods=['GET'])
+    def estadisticas(self):
+        desde = request.args.get('desde', '').strip()
+        hasta = request.args.get('hasta', '').strip()
+
+        if not desde or not hasta:
+            from flask import Response, json
+            empty_response = set_response([], 400, "Faltan parametros desde/hasta")
+            return Response(
+                json.dumps(empty_response, ensure_ascii=False),
+                mimetype="application/json"
+            )
+
+        try:
+            datetime.strptime(desde, '%Y-%m-%d')
+            datetime.strptime(hasta, '%Y-%m-%d')
+        except ValueError:
+            from flask import Response, json
+            error_response = set_response([], 400, "Formato de fecha invalido. Use YYYY-MM-DD")
+            return Response(
+                json.dumps(error_response, ensure_ascii=False),
+                mimetype="application/json"
+            )
+        sql = f"""
+        SELECT
+        SUM(ingresos_registros)   AS ingresos_registros,
+        SUM(en_predio_registros)  AS en_predio_registros,
+        SUM(egresos_registros)    AS egresos_registros,
+
+        SUM(ingresaron) AS ingresaron,
+        SUM(en_predio)  AS en_predio,
+        SUM(egresaron)  AS egresaron,
+
+        SUM(adultos)     AS adultos,
+        SUM(adultos_l)   AS adultos_l,
+        SUM(menores)     AS menores,
+        SUM(menores_l)   AS menores_l,
+        SUM(jubilados)   AS jubilados,
+        SUM(jubilados_l) AS jubilados_l,
+
+        SUM(estacionamientos) AS estacionamientos,
+        SUM(motorhome)        AS motorhome,
+        SUM(motorhome_l)      AS motorhome_l,
+        SUM(bajada_lancha)    AS bajada_lancha,
+        SUM(bajada_lancha_l)  AS bajada_lancha_l
+        FROM dbo.vw_estadisticas_ingresos_diarias
+        WHERE Fecha BETWEEN '{desde}' AND '{hasta}';
+        """
+
+        
+        result, error = get_customer_response(sql, " al obtener estadisticas.", True, self.token_global)
+        response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
+
+        from flask import Response, json
+
+        if error:
+            self.log({result}, "ERROR")
+
+        return Response(
+            json.dumps(response, ensure_ascii=False),
+            mimetype="application/json"
+        )
+
+    @route('/MediosDePagosEstadisticas', methods=['GET'])
+    def medios_de_pagos_estadisticas(self):
+        desde = request.args.get('desde', '').strip()
+        hasta = request.args.get('hasta', '').strip()
+
+        if not desde or not hasta:
+            from flask import Response, json
+            empty_response = set_response([], 400, "Faltan parametros desde/hasta")
+            return Response(
+                json.dumps(empty_response, ensure_ascii=False),
+                mimetype="application/json"
+            )
+
+        try:
+            datetime.strptime(desde, '%Y-%m-%d')
+            datetime.strptime(hasta, '%Y-%m-%d')
+        except ValueError:
+            from flask import Response, json
+            error_response = set_response([], 400, "Formato de fecha invalido. Use YYYY-MM-DD")
+            return Response(
+                json.dumps(error_response, ensure_ascii=False),
+                mimetype="application/json"
+            )
+
+        sql = f"""
+        SET DATEFORMAT YMD;
+        SELECT
+          mp.MedioDePago,
+          CASE
+            WHEN mp.MedioDePago IS NULL OR mp.MedioDePago = 'CXP' THEN 'CUENTA CORRIENTE'
+            ELSE c.Descripcion
+          END AS Descripcion,
+          COUNT(*) AS cantidad,
+          SUM(mp.total) AS total
+        FROM (
+          SELECT
+            NULLIF(LTRIM(RTRIM(i.MedioDePago)), '') AS MedioDePago,
+            i.total,
+            i.Anulada,
+            i.Ingreso
+          FROM MV_Ingresos i
+        ) mp
+        LEFT JOIN MA_CUENTAS c
+          ON c.CodigoOpcional = mp.MedioDePago
+          AND c.CodigoOpcional IS NOT NULL
+        WHERE mp.Ingreso >= '{desde}'
+          AND mp.Ingreso <= '{hasta}'
+          AND mp.Anulada = 0
+        GROUP BY
+          mp.MedioDePago,
+          CASE WHEN mp.MedioDePago IS NULL OR mp.MedioDePago = 'CXP' THEN 'CUENTA CORRIENTE' ELSE c.Descripcion END
+        ORDER BY total DESC;
+        """
+        print(sql)
+        
+        result, error = get_customer_response(sql, " al obtener estadisticas de medios de pago.", True, self.token_global)
+        response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
+
+        from flask import Response, json
+
+        if error:
+            self.log({result}, "ERROR")
+
+        return Response(
+            json.dumps(response, ensure_ascii=False),
+            mimetype="application/json"
+        )
