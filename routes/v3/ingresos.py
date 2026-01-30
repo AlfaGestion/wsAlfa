@@ -262,9 +262,26 @@ class IngresosView(MasterView):
  
     @route('/ingresospendientes', methods=['GET'])
     def ingresospendientes(self):
+        desde = request.args.get('desde', '').strip()
+        hasta = request.args.get('hasta', '').strip()
+
+        filtro_fecha = ""
+        if desde and hasta:
+            try:
+                datetime.strptime(desde, '%Y-%m-%d')
+                datetime.strptime(hasta, '%Y-%m-%d')
+                filtro_fecha = f"WHERE Ingreso >= '{desde}' AND Ingreso <= '{hasta}'"
+            except ValueError:
+                from flask import Response, json
+                error_response = set_response([], 400, "Formato de fecha invalido. Use YYYY-MM-DD")
+                return Response(
+                    json.dumps(error_response, ensure_ascii=False),
+                    mimetype="application/json"
+                )
 
         sql = f"""
         SELECT Ingreso,Egreso, ApellidoNombre, Parcela,Dni from vt_mv_ingresos_pendientes
+        {filtro_fecha}
         """
         
         result, error = get_customer_response(sql, f" al obtener los ingresos pendientes.", True, self.token_global)
@@ -290,6 +307,8 @@ class IngresosView(MasterView):
     @route('/ingresospendientes/search', methods=['GET'])
     def ingresospendientes_search(self):
         search = request.args.get('search', '').strip()
+        desde = request.args.get('desde', '').strip()
+        hasta = request.args.get('hasta', '').strip()
 
         if not search:
             from flask import Response, json
@@ -299,13 +318,28 @@ class IngresosView(MasterView):
                 mimetype="application/json"
             )
 
+        filtro_fecha = ""
+        if desde and hasta:
+            try:
+                datetime.strptime(desde, '%Y-%m-%d')
+                datetime.strptime(hasta, '%Y-%m-%d')
+                filtro_fecha = f" AND Ingreso >= '{desde}' AND Ingreso <= '{hasta}'"
+            except ValueError:
+                from flask import Response, json
+                error_response = set_response([], 400, "Formato de fecha invalido. Use YYYY-MM-DD")
+                return Response(
+                    json.dumps(error_response, ensure_ascii=False),
+                    mimetype="application/json"
+                )
+
         sql = f"""
         SELECT Ingreso, Egreso, ApellidoNombre, Parcela, Dni, Patente
         FROM vt_mv_ingresos_pendientes
-        WHERE ApellidoNombre LIKE '%{search}%'
+        WHERE (ApellidoNombre LIKE '%{search}%'
            OR Dni LIKE '%{search}%'
            OR Patente LIKE '%{search}%'
-           OR CAST(Parcela AS VARCHAR(50)) LIKE '%{search}%'
+           OR CAST(Parcela AS VARCHAR(50)) LIKE '%{search}%')
+        {filtro_fecha}
         """
 
         result, error = get_customer_response(sql, f" al buscar ingresos pendientes.", True, self.token_global)
