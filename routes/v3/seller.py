@@ -160,23 +160,7 @@ class ViewSeller(MasterView):
 
     @route('/visits', methods=['POST'])
     def set_visits(self):
-        data = request.get_json()
-
-        for visit in data:
-            date = visit.get('date')
-            id_seller = visit.get('seller')
-            obs = visit.get('obs', '')
-            account = visit.get('account')
-            visited = visit.get('visited')
-
-            query = f"""
-            INSERT INTO V_MV_STATUS (UNegocio,TC,IdComprobante,IdTarea,IdEstado,FechaHora,Usuario,Cuenta,Observaciones,Secuencia,IdTecnico,NroMov)
-            VALUES ('   1','VV','Vdor:{id_seller}|Vis:{visited}','','','{date}','Vendedor App','{account}','{obs}',1,'', (SELECT isnull(MAX(NROMOV),0)+1 FROM V_MV_STATUS))
-            """
-
-            response = self.get_response(query, f"Ocurrió un error al obtener la configuración del vendedor", False, True)
-
-        return set_response(response, 200)
+        return set_response("Proceso omitido.", 200)
 
     @route('/location/<string:id>')
     def get_location(self, id: str):

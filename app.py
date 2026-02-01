@@ -81,6 +81,13 @@ from routes.v3.transmision_codigos_zonas import ViewTransmisionCodigosZonas
 from routes.v3.menu import ViewMenu
 
 from routes.v3.ingresos import IngresosView
+from routes.v3.cashbox import ViewCashBox
+from routes.v3.service import ViewService
+from routes.v3.task import ViewTask
+from routes.v3.order import ViewOrder
+from routes.v3.payment import ViewPayment
+from routes.v3.sales import ViewSales
+from routes.v3.utils import ViewUtils
 
 
 app = Flask(__name__)
@@ -100,7 +107,7 @@ CORS(app, resources={"/api/*": api_cors_config},
      supports_credentials=True)
 
 
-API_PREFIX_V3 = '/api/v3/'
+API_PREFIX_V3 = '/api/v3'
 API_PREFIX = '/api/v2'
 TRANSPORT_PREFIX = '/transport'
 
@@ -172,23 +179,30 @@ Endpoints V3
 """
 # ViewConsultas.register(app, route_base=f'{API_PREFIX_V3}/consultas')
 # ViewReport.register(app, route_base=f'{API_PREFIX_V3}/report')
-# ViewProduct.register(app, route_base=f'{API_PREFIX_V3}/product')
-# ViewCustomer.register(app, route_base=f'{API_PREFIX_V3}/customer')
-# ViewAccount.register(app, route_base=f'{API_PREFIX_V3}/account')
-# ViewProducts.register(app, route_base=f'{API_PREFIX_V3}/products')
-# ViewAuth.register(app, route_base=f'{API_PREFIX_V3}/auth')
+ViewProduct.register(app, route_base=f'{API_PREFIX_V3}/product')
+ViewCustomer.register(app, route_base=f'{API_PREFIX_V3}/customer')
+ViewAccount.register(app, route_base=f'{API_PREFIX_V3}/account')
+ViewProducts.register(app, route_base=f'{API_PREFIX_V3}/products')
+ViewAuth.register(app, route_base=f'{API_PREFIX_V3}')
 # ViewRegister.register(app, route_base=f'{API_PREFIX_V3}/register')
-# ViewSession.register(app, route_base=f'{API_PREFIX_V3}/session')
-# ViewSeller.register(app, route_base=f'{API_PREFIX_V3}/seller')
-# ViewBrand.register(app, route_base=f'{API_PREFIX_V3}/brand')
-# ViewCategory.register(app, route_base=f'{API_PREFIX_V3}/category')
-# ViewUnit.register(app, route_base=f'{API_PREFIX_V3}/unit')
-# ViewStock.register(app, route_base=f'{API_PREFIX_V3}/stock')
-# ViewFamily.register(app, route_base=f'{API_PREFIX_V3}/family')
+ViewSession.register(app, route_base=f'{API_PREFIX_V3}/session')
+ViewSeller.register(app, route_base=f'{API_PREFIX_V3}/seller')
+ViewBrand.register(app, route_base=f'{API_PREFIX_V3}/brand')
+ViewCategory.register(app, route_base=f'{API_PREFIX_V3}/category')
+ViewUnit.register(app, route_base=f'{API_PREFIX_V3}/unit')
+ViewStock.register(app, route_base=f'{API_PREFIX_V3}/stock')
+ViewFamily.register(app, route_base=f'{API_PREFIX_V3}/family')
+ViewCashBox.register(app, route_base=f'{API_PREFIX_V3}/cashbox')
+ViewService.register(app, route_base=f'{API_PREFIX_V3}/service')
+ViewTask.register(app, route_base=f'{API_PREFIX_V3}/task')
+ViewOrder.register(app, route_base=f'{API_PREFIX_V3}/order')
+ViewPayment.register(app, route_base=f'{API_PREFIX_V3}/payment')
+ViewSales.register(app, route_base=f'{API_PREFIX_V3}/sales')
+ViewUtils.register(app, route_base=f'{API_PREFIX_V3}/utils')
 # ViewChromeExtension.register(app, route_base=f'{API_PREFIX_V3}/extension')
 # ViewConfiguration.register(app, route_base=f'{API_PREFIX_V3}/configuration')
 # ViewMenu.register(app, route_base=f'{API_PREFIX_V3}/menu')
-ViewTransmisionCodigosZonas.register(app,route_base=f'{API_PREFIX_V3}/transmision_codigos')
+ViewTransmisionCodigosZonas.register(app, route_base=f'{API_PREFIX_V3}/transmision_codigos')
 # IngresosView.register(app, route_base=f'{API_PREFIX_V3}/ingresos')
 # ViewWarehouse.register(app, route_base=f'{API_PREFIX_V3}/warehouse')
 # ViewProducts.register(app, route_base=f'{API_PREFIX_V3}/products')
