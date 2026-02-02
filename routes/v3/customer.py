@@ -16,8 +16,13 @@ class ViewCustomer(MasterView):
         SELECT codigo,isnull(CodigoOpcional,'') as codigo_opcional,ltrim(RAZON_SOCIAL) as razon_social,
         isnull(isnull(ltrim(calle),'') + ' ' + isnull(numero,'') + ' ' + isnull(piso,'') +  ' ' + isnull(DEPARTAMENTO,''),'') as calle, 
         ltrim(LOCALIDAD) as localidad,isnull(ltrim(NUMERO_DOCUMENTO),'') as cuit,isnull(Clase,1) as clase,isnull(ltrim(iva),'') as iva,
-        isnull(descuento,0) as dto,'FC' as cpte_default,isnull(ltrim(IdVendedor),'') as idvendedor,isnull(ltrim(TELEFONO),'') as telefono, isnull(LTRIM(MAIL),'') as email
-        FROM VT_CLIENTES where dada_de_baja=0 and CTACODIGO <> 0 and CODIGO <> 0;
+        isnull(descuento,0) as dto,'FC' as cpte_default,isnull(ltrim(IdVendedor),'') as idvendedor,isnull(ltrim(TELEFONO),'') as telefono, isnull(LTRIM(MAIL),'') as email,
+        isnull(ltrim(a.PROVINCIA),'') as provincia_id,isnull(ltrim(c.DESCRIPCION),'') as provincia_nombre,
+        isnull(ltrim(a.PAIS),'') as pais_id,isnull(ltrim(d.DESCRIPCION),'') as pais_nombre
+        FROM VT_CLIENTES a
+        LEFT JOIN TA_ESTADOS c ON a.PROVINCIA = c.CODIGO
+        LEFT JOIN TA_PAISES d ON a.PAIS = d.CODIGO
+        where dada_de_baja=0 and CTACODIGO <> 0 and CODIGO <> 0;
         """
 
         result, error = get_customer_response(
@@ -120,8 +125,13 @@ class ViewCustomer(MasterView):
         ltrim(LOCALIDAD) as localidad,isnull(ltrim(NUMERO_DOCUMENTO),'''') as cuit,isnull(Clase,1) as clase,isnull(ltrim(iva),'''') as iva,
         isnull(descuento,0) as dto,''FC'' as cpte_default,isnull(ltrim(IdVendedor),'''') as idvendedor,isnull(ltrim(TELEFONO),'''') as telefono, isnull(LTRIM(MAIL),'''') as email,isnull(ltrim(idlista),'''') as lista,
         isnull(ltrim(X),'''') as campo_x,
-        isnull(ltrim(Y),'''') as campo_y 
-        FROM VT_CLIENTES WHERE DADA_DE_BAJA=0) g 
+        isnull(ltrim(Y),'''') as campo_y,
+        isnull(ltrim(a.PROVINCIA),'''') as provincia_id,isnull(ltrim(c.DESCRIPCION),'''') as provincia_nombre,
+        isnull(ltrim(a.PAIS),'''') as pais_id,isnull(ltrim(d.DESCRIPCION),'''') as pais_nombre
+        FROM VT_CLIENTES a
+        LEFT JOIN TA_ESTADOS c ON a.PROVINCIA = c.CODIGO
+        LEFT JOIN TA_PAISES d ON a.PAIS = d.CODIGO
+        WHERE DADA_DE_BAJA=0) g 
         WHERE RowNr BETWEEN ' + @from + ' AND ' + @until 
         
         EXEC(@rs)
