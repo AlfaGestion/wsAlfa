@@ -11,7 +11,7 @@ class ViewProduct(MasterView):
     def index(self):
         sql = f"""
         SELECT
-        ltrim(a.idarticulo) as idarticulo, ltrim(descripcion) as descripcion, isnull(ltrim(IDRUBRO),'') as idrubro,isnull(IdFamilia ,'') as idfamilia,
+        ltrim(a.idarticulo) as idarticulo, CODIGOBARRA as codigobarras, ltrim(descripcion) as descripcion, isnull(ltrim(IDRUBRO),'') as idrubro,isnull(IdFamilia ,'') as idfamilia,
         convert(varchar,convert(decimal(15,2),isnull(IMPUESTOS,0))) as imp_internos,
         convert(varchar,convert(decimal(15,2),isnull(tasaiva,0))) as iva,
         convert(varchar,convert(decimal(15,2),isnull(EXENTO,0))) as exento,
@@ -65,7 +65,7 @@ class ViewProduct(MasterView):
 		SET @until = (@PageNumber * @PageSize)	
 		
         SET @rs = 'SELECT * FROM (
-        SELECT ROW_NUMBER() OVER (ORDER BY a.IDARTICULO) as RowNr,ltrim(a.idarticulo) as idarticulo, ltrim(descripcion) as descripcion, isnull(ltrim(IDRUBRO),'''') as idrubro,isnull(IdFamilia ,'''') as idfamilia,
+        SELECT ROW_NUMBER() OVER (ORDER BY a.IDARTICULO) as RowNr,ltrim(a.idarticulo) as idarticulo, CODIGOBARRA as codigobarras, ltrim(descripcion) as descripcion, isnull(ltrim(IDRUBRO),'''') as idrubro,isnull(IdFamilia ,'''') as idfamilia,
         convert(varchar,convert(decimal(15,2),isnull(IMPUESTOS,0))) as imp_internos,
         convert(varchar,convert(decimal(15,2),isnull(tasaiva,0))) as iva,
         convert(varchar,convert(decimal(15,2),isnull(EXENTO,0))) as exento, 
