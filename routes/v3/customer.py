@@ -13,8 +13,9 @@ class ViewCustomer(MasterView):
         # SELECT * FROM VT_CLIENTES
         # """
         sql = f"""
-        SELECT codigo,isnull(CodigoOpcional,'') as codigo_opcional,ltrim(RAZON_SOCIAL) as razon_social,
+        SELECT a.codigo,isnull(CodigoOpcional,'') as codigo_opcional,ltrim(RAZON_SOCIAL) as razon_social,
         isnull(isnull(ltrim(calle),'') + ' ' + isnull(numero,'') + ' ' + isnull(piso,'') +  ' ' + isnull(DEPARTAMENTO,''),'') as calle, 
+        isnull(ltrim(numero),'') as numero_calle,
         ltrim(LOCALIDAD) as localidad,isnull(ltrim(NUMERO_DOCUMENTO),'') as cuit,isnull(Clase,1) as clase,isnull(ltrim(iva),'') as iva,
         isnull(descuento,0) as dto,'FC' as cpte_default,isnull(ltrim(IdVendedor),'') as idvendedor,isnull(ltrim(TELEFONO),'') as telefono, isnull(LTRIM(MAIL),'') as email,
         isnull(ltrim(a.PROVINCIA),'') as provincia_id,isnull(ltrim(c.DESCRIPCION),'') as provincia_nombre,
@@ -22,7 +23,7 @@ class ViewCustomer(MasterView):
         FROM VT_CLIENTES a
         LEFT JOIN TA_ESTADOS c ON a.PROVINCIA = c.CODIGO
         LEFT JOIN TA_PAISES d ON a.PAIS = d.CODIGO
-        where dada_de_baja=0 and CTACODIGO <> 0 and CODIGO <> 0;
+        where dada_de_baja=0 and CTACODIGO <> 0 and a.CODIGO <> 0;
         """
 
         result, error = get_customer_response(
@@ -50,6 +51,8 @@ class ViewCustomer(MasterView):
         cp = data.get('cp', '')
         docType = data.get('docType', '')
         code = data.get('code', '')
+        latitude = data.get('latitude', '')
+        longitude = data.get('longitude', '')
 
         print(data)
 
@@ -64,6 +67,17 @@ class ViewCustomer(MasterView):
 
         response = self.get_response(query, f"Ocurrió un error al crear el cliente", True, True)
         response = response[0][0]
+
+        try:
+            new_code = response.get('codigo')
+            lat = str(latitude).strip() if latitude is not None else ''
+            lng = str(longitude).strip() if longitude is not None else ''
+            if new_code and lat not in ['', '0', '0.0'] and lng not in ['', '0', '0.0']:
+                sql_coords = f"UPDATE MA_CUENTASADIC SET X='{lat}', Y='{lng}' WHERE CODIGO='{new_code}'"
+                self.get_response(sql_coords, f"Ocurrió un error al actualizar coordenadas del cliente {new_code}", True, True)
+        except Exception:
+            pass
+
         return set_response(response, 200)
 
     @route('/<string:code>/expired_invoice', methods=['GET'])
@@ -119,9 +133,10 @@ class ViewCustomer(MasterView):
         SET @until = (@PageNumber * @PageSize)  
         
          SET @rs = 'SELECT * FROM (
-        SELECT ROW_NUMBER() OVER (ORDER BY codigo) as RowNr,
-        codigo,isnull(CodigoOpcional,'''') as codigo_opcional,ltrim(RAZON_SOCIAL) as razon_social,
+        SELECT ROW_NUMBER() OVER (ORDER BY a.codigo) as RowNr,
+        a.codigo,isnull(CodigoOpcional,'''') as codigo_opcional,ltrim(RAZON_SOCIAL) as razon_social,
         ltrim(isnull(isnull(ltrim(calle),'''') + '' '' + isnull(numero,'''') + '' '' + isnull(piso,'''') +  '' '' + isnull(DEPARTAMENTO,''''),'''')) as calle, 
+        isnull(ltrim(numero),'''') as numero_calle,
         ltrim(LOCALIDAD) as localidad,isnull(ltrim(NUMERO_DOCUMENTO),'''') as cuit,isnull(Clase,1) as clase,isnull(ltrim(iva),'''') as iva,
         isnull(descuento,0) as dto,''FC'' as cpte_default,isnull(ltrim(IdVendedor),'''') as idvendedor,isnull(ltrim(TELEFONO),'''') as telefono, isnull(LTRIM(MAIL),'''') as email,isnull(ltrim(idlista),'''') as lista,
         isnull(ltrim(X),'''') as campo_x,
