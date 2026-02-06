@@ -55,8 +55,7 @@ class ViewOrder(MasterView):
         safe_marker = marker.replace("'", "''")
         safe_tc = (tc or "NP").strip().upper()
         safe_account = (account or "").replace("'", "''")
-        obs_marker = f"Nota de pedido Web Nro: {safe_marker}"
-        sql = f"SELECT TOP 1 ID FROM V_MV_CPTE WHERE TC='{safe_tc}' AND CUENTA='{safe_account}' AND OBSERVACIONES LIKE '%{obs_marker}%'"
+        sql = f"SELECT TOP 1 ID FROM V_MV_CPTE WHERE TC='{safe_tc}' AND CUENTA='{safe_account}' AND TRANSPORTE_NOMBRE='{safe_marker}'"
         result, error = get_customer_response(sql, "validar pedido duplicado", True, self.token_global)
         return (not error) and len(result) > 0
 
@@ -78,25 +77,25 @@ class ViewOrder(MasterView):
             tc = order.get('tc', 'NP')
             tc = (tc or 'NP').strip().upper()
             external_id = order.get('externalId', '') or order.get('external_id', '') or order.get('id', '')
+            transporte_nombre = order.get('TRANSPORTE_NOMBRE', '') or order.get('transporte_nombre', '') or order.get('transporteNombre', '')
             seller_name = order.get('sellerName', '') or ''
             device_model = order.get('deviceModel', '') or ''
 
             marker = ""
-            if external_id:
+            if transporte_nombre:
+                marker = transporte_nombre
+            elif external_id:
                 seller_tag = seller.strip() if seller else ""
-                if seller_tag:
+                if seller_tag and not str(external_id).startswith(f"{seller_tag}-"):
                     marker = f"{seller_tag}-{external_id}"
                 else:
                     marker = f"{external_id}"
-                marker = self._normalize_marker(marker)
+
+            marker = self._normalize_marker(marker)
 
             if marker and self._order_exists(marker, tc, account):
                 self.log(f"Pedido duplicado omitido. Marker: {marker}")
                 continue
-
-            if marker:
-                obs_marker = f"Nota de pedido Web Nro: {marker}"
-                obs = obs_marker if not obs else f"{obs_marker} | {obs}"
 
             safe_obs = (obs or "").replace("'", "''")
             if len(safe_obs) > 250:
@@ -129,9 +128,8 @@ class ViewOrder(MasterView):
             result_id_invoice = result[0][2]
             if marker:
                 safe_marker = marker.replace("'", "''")
-                obs_marker = f"Nota de pedido Web Nro: {safe_marker}"
-                sql_obs = f"UPDATE V_MV_CPTE SET OBSERVACIONES='{obs_marker}' WHERE ID={result_id_invoice}"
-                exec_customer_sql(sql_obs, " al actualizar observaciones del pedido", self.token_global, False)
+                sql_transporte = f"UPDATE V_MV_CPTE SET TRANSPORTE_NOMBRE='{safe_marker}' WHERE ID={result_id_invoice}"
+                exec_customer_sql(sql_transporte, " al actualizar transporte del pedido", self.token_global, False)
 
             try:
                 safe_seller = (seller or '').strip()
