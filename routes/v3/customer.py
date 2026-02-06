@@ -155,8 +155,27 @@ class ViewCustomer(MasterView):
         result, error = get_customer_response(
             sql, f" al obtener los clientes en pagina {page}", True, self.token_global)
 
+        total = 0
+        pages = 0
+        try:
+            count_sql = "SELECT COUNT(*) FROM VT_CLIENTES a WHERE DADA_DE_BAJA=0"
+            count_rows, count_error = exec_customer_sql(count_sql, " al contar clientes", self.token_global, True)
+            if not count_error and count_rows:
+                total = int(count_rows[0][0])
+                pages = int((total + page_size - 1) / page_size) if total > 0 else 0
+        except Exception:
+            pass
+
+        payload = {
+            "rows": result,
+            "total": total,
+            "pages": pages,
+            "page": page,
+            "page_size": page_size
+        }
+
         response = set_response(
-            result, 200 if not error else 404, "" if not error else result[0]['message'])
+            payload, 200 if not error else 404, "" if not error else result[0]['message'])
         return response
 
     @route('get_balance/<string:codigo>/<string:fhd>/<string:fhh>/<int:solo_pendiente>')

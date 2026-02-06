@@ -8,6 +8,57 @@ from rich import print
 
 
 class ViewOrder(MasterView):
+    def _normalize_datetime(self, value) -> str:
+        if not value:
+            return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        if isinstance(value, datetime):
+            return value.strftime("%Y-%m-%d %H:%M:%S")
+
+        s = str(value).strip()
+        for fmt in [
+            "%d/%m/%Y %H:%M:%S.%f",
+            "%d/%m/%Y %H:%M:%S",
+            "%d/%m/%Y %H:%M",
+            "%Y-%m-%d %H:%M:%S.%f",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M",
+            "%Y-%m-%dT%H:%M:%S.%f",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y%m%d%H%M%S",
+            "%Y%m%d",
+        ]:
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                pass
+
+        for fmt in ["%d/%m/%Y", "%Y-%m-%d"]:
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%Y-%m-%d 00:00:00")
+            except ValueError:
+                pass
+
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def _normalize_marker(self, marker: str, max_len: int = 20) -> str:
+        if not marker:
+            return ""
+        return marker[:max_len]
+
+    def _order_exists(self, marker: str, tc: str, account: str) -> bool:
+        if not marker:
+            return False
+
+        safe_marker = marker.replace("'", "''")
+        safe_tc = (tc or "NP").strip().upper()
+        safe_account = (account or "").replace("'", "''")
+        obs_marker = f"Nota de pedido Web Nro: {safe_marker}"
+        sql = f"SELECT TOP 1 ID FROM V_MV_CPTE WHERE TC='{safe_tc}' AND CUENTA='{safe_account}' AND OBSERVACIONES LIKE '%{obs_marker}%'"
+        result, error = get_customer_response(sql, "validar pedido duplicado", True, self.token_global)
+        return (not error) and len(result) > 0
 
     def post(self):
         orders = request.get_json()
@@ -16,7 +67,8 @@ class ViewOrder(MasterView):
         for order in orders:
 
             account = order.get('account', '')
-            date = order.get('date', datetime.now().strftime('%d/%m/%Y'))
+            date_raw = order.get('date', datetime.now().strftime('%d/%m/%Y'))
+            date = self._normalize_datetime(date_raw)
             seller = order.get('seller', '')
             lat = order.get('lat', '0')
             lng = order.get('lng', '0')
@@ -25,13 +77,37 @@ class ViewOrder(MasterView):
             sale_condition = order.get('condition', '')
             tc = order.get('tc', 'NP')
             tc = (tc or 'NP').strip().upper()
+            external_id = order.get('externalId', '') or order.get('external_id', '') or order.get('id', '')
+            seller_name = order.get('sellerName', '') or ''
+            device_model = order.get('deviceModel', '') or ''
+
+            marker = ""
+            if external_id:
+                seller_tag = seller.strip() if seller else ""
+                if seller_tag:
+                    marker = f"{seller_tag}-{external_id}"
+                else:
+                    marker = f"{external_id}"
+                marker = self._normalize_marker(marker)
+
+            if marker and self._order_exists(marker, tc, account):
+                self.log(f"Pedido duplicado omitido. Marker: {marker}")
+                continue
+
+            if marker:
+                obs_marker = f"Nota de pedido Web Nro: {marker}"
+                obs = obs_marker if not obs else f"{obs_marker} | {obs}"
+
+            safe_obs = (obs or "").replace("'", "''")
+            if len(safe_obs) > 250:
+                safe_obs = safe_obs[:250]
 
             sql = f"""
             DECLARE @pRes INT
             DECLARE @pMensaje NVARCHAR(250)
             DECLARE @pIdCpte INT
 
-            set nocount on; EXEC sp_web_V_MV_CPTE '{account}','{seller}','{date}','{obs}','{lat}','{lng}','{tc}',@pRes OUTPUT, @pMensaje OUTPUT,@pIdCpte OUTPUT
+            set nocount on; EXEC sp_web_V_MV_CPTE '{account}','{seller}','{date}','{safe_obs}','{lat}','{lng}','{tc}',@pRes OUTPUT, @pMensaje OUTPUT,@pIdCpte OUTPUT
 
             SELECT @pRes as pRes, @pMensaje as pMensaje, @pIdCpte pIdCpte
             """
@@ -51,6 +127,56 @@ class ViewOrder(MasterView):
                 return set_response(None, 404, result[0][1])
 
             result_id_invoice = result[0][2]
+            if marker:
+                safe_marker = marker.replace("'", "''")
+                obs_marker = f"Nota de pedido Web Nro: {safe_marker}"
+                sql_obs = f"UPDATE V_MV_CPTE SET OBSERVACIONES='{obs_marker}' WHERE ID={result_id_invoice}"
+                exec_customer_sql(sql_obs, " al actualizar observaciones del pedido", self.token_global, False)
+
+            try:
+                safe_seller = (seller or '').strip()
+                safe_name = (seller_name or '').strip()
+                if not safe_name and safe_seller:
+                    sql_vdor = f"SELECT LTRIM(nombre) FROM V_TA_VENDEDORES WHERE LTRIM(idvendedor)='{safe_seller}'"
+                    vdor_rows, vdor_err = exec_customer_sql(sql_vdor, " al obtener el nombre del vendedor", self.token_global, True)
+                    if not vdor_err and vdor_rows:
+                        safe_name = (vdor_rows[0][0] or "").strip()
+                usuario = f"{safe_seller} - {safe_name}".strip(" -")
+                usuario = usuario[:255]
+                pc = (device_model or '').strip()[:255]
+
+                sql_cp = f"SELECT IDCOMPROBANTE, FECHAHORA_GRABACION FROM V_MV_CPTE WHERE ID = {result_id_invoice}"
+                cpte_rows, cpte_err = exec_customer_sql(sql_cp, " al obtener idcomprobante", self.token_global, True)
+                idcomprobante = cpte_rows[0][0] if not cpte_err and cpte_rows else result_id_invoice
+                fecha_grabacion = cpte_rows[0][1] if not cpte_err and cpte_rows else None
+                safe_fecha = (date or "").replace("'", "''")
+                safe_fecha_grab = str(fecha_grabacion).replace("'", "''") if fecha_grabacion else ""
+                fecha_sql = (
+                    f"CASE "
+                    f"WHEN ISDATE('{safe_fecha_grab}') = 1 THEN CONVERT(DATETIME,'{safe_fecha_grab}',121) "
+                    f"WHEN ISDATE('{safe_fecha}') = 1 THEN CONVERT(DATETIME,'{safe_fecha}',103) "
+                    f"ELSE GETDATE() END"
+                )
+                fecha_cp_sql = (
+                    f"CASE WHEN ISDATE('{safe_fecha}') = 1 THEN CONVERT(DATETIME,'{safe_fecha}',103) "
+                    f"ELSE GETDATE() END"
+                )
+                safe_cuenta = (account or '').replace("'", "''")
+                raw_lat = str(lat).strip()
+                raw_lng = str(lng).strip()
+                has_coords = raw_lat not in ['', '0', '0.0'] and raw_lng not in ['', '0', '0.0']
+                safe_lat = raw_lat.replace("'", "''") if has_coords else "SIN_PERMISO"
+                safe_lng = raw_lng.replace("'", "''") if has_coords else ""
+
+                sql_accion = f"""
+                INSERT INTO V_MV_CPTEACCIONES
+                (TC, IDCOMPROBANTE, IDCOMPLEMENTO, TIPO_ACCION, FECHAHORA, USUARIO, PC, SYSTEMUSER, CUENTA, PROCESO, PROCESOLOTE, FECHA)
+                VALUES
+                ('{tc}', '{idcomprobante}', 0, 'UB', {fecha_sql}, '{usuario}', '{pc}', 'APP AlfaGo - Ubicacion actual', '{safe_cuenta}', '{safe_lat}', '{safe_lng}', {fecha_cp_sql})
+                """
+                exec_customer_sql(sql_accion, " al grabar la ubicacion del comprobante", self.token_global, False)
+            except Exception as _err:
+                self.log(_err)
 
             if lat != '0' and lng != '0':
                 sql_coords = f"UPDATE MA_CUENTASADIC SET X='{lat}', Y='{lng}' WHERE CODIGO='{account}'"
@@ -122,7 +248,7 @@ class ViewOrder(MasterView):
 
                 if error:
                     self.log(str(result[0]['message']) + "\nSENTENCIA : " + sql)
-                    self.__delete_order_on_error(result_id_invoice)
+                    self.__delete_order_on_error(result_id_invoice, tc)
                     return set_response(None, 404, "OcurriÃ³ un error al grabar el detalle del pedido. Intente nuevamente.")
 
         response = set_response([], 200, "Pedidos grabados correctamente.")
@@ -163,7 +289,11 @@ class ViewOrder(MasterView):
         response = set_response(result, 200 if not error else 404, "" if not error else result[0]['message'])
         return response
 
-    def __delete_order_on_error(self, cpte_id: str):
-        query = f"DELETE FROM V_MV_CPTE WHERE ID = {cpte_id}"
+    def __delete_order_on_error(self, cpte_id: str, tc: str):
+        safe_tc = (tc or 'NP').strip().upper()
+        query = f"""
+        DELETE FROM V_MV_CPTEINSUMOS WHERE TC = '{safe_tc}' AND IDCOMPROBANTE = '{cpte_id}';
+        DELETE FROM V_MV_CPTE WHERE ID = {cpte_id};
+        """
 
-        response = self.get_response(query, f"OcurriÃ³ un error al eliminar el comprobante", False, True)
+        response = self.get_response(query, f"Ocurri? un error al eliminar el comprobante", False, True)

@@ -160,7 +160,50 @@ class ViewSeller(MasterView):
 
     @route('/visits', methods=['POST'])
     def set_visits(self):
-        return set_response("Proceso omitido.", 200)
+        data = request.get_json()
+
+        for visit in data:
+            raw_date = visit.get('date')          # "04/02/2026"  (dd/mm/yyyy)
+            id_seller = visit.get('seller')
+            obs = visit.get('obs', '')
+            account = visit.get('account')
+            visited = visit.get('visited')
+
+            id_comprobante = f"Vdor:{id_seller}|Vis:{visited}"
+
+            query = f"""
+            DECLARE @Fecha date = CONVERT(date, '{raw_date}', 103);  -- 103 = dd/mm/yyyy
+
+            UPDATE V_MV_STATUS
+            SET
+                FechaHora     = @Fecha,
+                Usuario       = 'Vendedor App',
+                Observaciones = '{obs}'
+            WHERE TC = 'VV'
+            AND IdComprobante = '{id_comprobante}'
+            AND Cuenta = '{account}'
+            AND CONVERT(date, FechaHora) = @Fecha;
+
+            IF @@ROWCOUNT = 0
+            BEGIN
+                INSERT INTO V_MV_STATUS
+                (UNegocio, TC, IdComprobante, IdTarea, IdEstado, FechaHora,
+                Usuario, Cuenta, Observaciones, Secuencia, IdTecnico, NroMov)
+                VALUES
+                ('   1','VV','{id_comprobante}','','', @Fecha,
+                'Vendedor App','{account}','{obs}',1,'',
+                (SELECT ISNULL(MAX(NroMov),0)+1 FROM V_MV_STATUS))
+            END
+            """
+
+            response = self.get_response(
+                query,
+                "Ocurrió un error al obtener la configuración del vendedor",
+                False,
+                True
+            )
+
+        return set_response(response, 200)
 
     @route('/location/<string:id>')
     def get_location(self, id: str):

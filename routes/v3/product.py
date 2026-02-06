@@ -91,8 +91,30 @@ class ViewProduct(MasterView):
         result, error = get_customer_response(
             sql, f" al obtener los clientes en pagina {page}", True, self.token_global)
 
+        total = 0
+        pages = 0
+        try:
+            count_sql = """
+            SELECT COUNT(*) FROM V_MA_ARTICULOS a
+            WHERE SUSPENDIDO=0 AND SUSPENDIDOV=0
+            """
+            count_rows, count_error = exec_customer_sql(count_sql, " al contar articulos", self.token_global, True)
+            if not count_error and count_rows:
+                total = int(count_rows[0][0])
+                pages = int((total + page_size - 1) / page_size) if total > 0 else 0
+        except Exception:
+            pass
+
+        payload = {
+            "rows": result,
+            "total": total,
+            "pages": pages,
+            "page": page,
+            "page_size": page_size
+        }
+
         response = set_response(
-            result, 200 if not error else 404, "" if not error else result[0]['message'])
+            payload, 200 if not error else 404, "" if not error else result[0]['message'])
         return response
     
     @route('/paginate/listas/<int:page>')
@@ -148,8 +170,31 @@ class ViewProduct(MasterView):
         result, error = get_customer_response(
             sql, f" al obtener los clientes en pagina {page}", True, self.token_global)
 
+        total = 0
+        pages = 0
+        try:
+            count_sql = """
+            SELECT COUNT(*) FROM V_MA_PRECIOS p
+            LEFT JOIN V_MA_ARTICULOS a on p.idarticulo = a.idarticulo
+            WHERE SUSPENDIDO=0 AND SUSPENDIDOV=0
+            """
+            count_rows, count_error = exec_customer_sql(count_sql, " al contar listas", self.token_global, True)
+            if not count_error and count_rows:
+                total = int(count_rows[0][0])
+                pages = int((total + page_size - 1) / page_size) if total > 0 else 0
+        except Exception:
+            pass
+
+        payload = {
+            "rows": result,
+            "total": total,
+            "pages": pages,
+            "page": page,
+            "page_size": page_size
+        }
+
         response = set_response(
-            result, 200 if not error else 404, "" if not error else result[0]['message'])
+            payload, 200 if not error else 404, "" if not error else result[0]['message'])
         return response
 
     def post(self):

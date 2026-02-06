@@ -10,6 +10,20 @@ from functions.Log import Log
 
 
 class ViewPayment(MasterView):
+    def _normalize_marker(self, marker: str, max_len: int = 20) -> str:
+        if not marker:
+            return ""
+        return marker[:max_len]
+
+    def _payment_exists(self, marker: str) -> bool:
+        if not marker:
+            return False
+
+        safe_marker = marker.replace("'", "''")
+        sql = f"SELECT TOP 1 ID FROM V_MV_CPTE WHERE TRANSPORTE_NOMBRE = '{safe_marker}'"
+        result, error = get_customer_response(sql, "validar cobranza duplicada", True, self.token_global)
+        return (not error) and len(result) > 0
+
     @route('/save', methods=['POST'])
     def save(self):
         """Utilizada para las cobranzas del movil.
@@ -28,6 +42,20 @@ class ViewPayment(MasterView):
                 date = payment.get('date', datetime.now().strftime('%d/%m/%Y'))
                 seller = payment.get('seller', '')
                 amount = payment.get('amount', 0)
+                external_id = payment.get('externalId', '') or payment.get('external_id', '') or paymentId
+
+                marker = ""
+                if external_id and external_id != "NO_ID":
+                    seller_tag = seller.strip() if seller else ""
+                    if seller_tag:
+                        marker = f"{seller_tag}-{external_id}"
+                    else:
+                        marker = f"{external_id}"
+                    marker = self._normalize_marker(marker)
+
+                if marker and self._payment_exists(marker):
+                    Log.create(f"INFO: Pago duplicado omitido. Marker: {marker}")
+                    continue
 
                 invoices = payment.get('invoices', None)
                 methods = payment.get('methods', None)
@@ -42,8 +70,22 @@ class ViewPayment(MasterView):
                 for invoice in invoices:
                     pay.add_application_invoice(invoice['tc'], invoice['idcomprobante'], invoice['amount'])
 
-                pay.save()
+                save_result = pay.save()
+                if isinstance(save_result, dict) and save_result.get('error', False):
+                    Log.create(f"ERROR: Falló el guardado del pago ID {paymentId}.")
+                    failed_payments.append(paymentId)
+                    continue
+
                 Log.create(f"INFO: Pago ID {paymentId} guardado correctamente.")
+                if marker:
+                    safe_marker = marker.replace("'", "''")
+                    safe_obs_marker = f"Cobranza Web Nro: {paymentId}".replace("'", "''")
+                    sql_marker = f"""
+                    UPDATE TOP (1) V_MV_CPTE
+                    SET TRANSPORTE_NOMBRE='{safe_marker}'
+                    WHERE OBSERVACIONES LIKE '%{safe_obs_marker}%'
+                    """
+                    exec_customer_sql(sql_marker, " al actualizar matricula de la cobranza", self.token_global, False)
 
             except Exception as e:
                 Log.create(f"ERROR: Falló el guardado del pago ID {paymentId}. Error: {e}")
@@ -51,10 +93,10 @@ class ViewPayment(MasterView):
 
         if failed_payments:
             message = f"Cobranzas grabadas. Hubo fallos en {len(failed_payments)} pagos. IDs fallidos: {', '.join(failed_payments)}"
+            response = set_response(failed_payments, 404, message)
         else:
             message = "Cobranzas grabadas correctamente."
-
-        response = set_response(failed_payments, 200, message)
+            response = set_response(failed_payments, 200, message)
 
         return response
 

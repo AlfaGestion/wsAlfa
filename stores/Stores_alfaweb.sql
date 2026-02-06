@@ -1980,7 +1980,6 @@ IF @unegocio IS Null or @unegocio = ''
 SET @unegocio=dbo.FN_FMT_LEERCODIGO(LTRIM(RTRIM(@unegocio)),4)
 
 SET @FechaHoraGrabacion  = @pFecha
-SET @pFecha = CONVERT(VARCHAR,@pFecha,103)
 
 DECLARE @pIdReparto INT
 SET @pIdReparto=0
@@ -2001,7 +2000,7 @@ BEGIN
 	VALUES
 		(
 			@Tc, @IdComprobante, 0,
-			@pFecha, @pFecha, @pCliente,
+		@FechaHoraGrabacion, @FechaHoraGrabacion, @pCliente,
 			@Nombre, @Domicilio, @Telefono,
 			@Localidad, @idProvincia, @codigoPostal,
 			@documentoTipo, @documentoNumero, @condicionIva,
