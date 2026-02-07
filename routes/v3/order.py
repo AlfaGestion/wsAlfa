@@ -8,6 +8,42 @@ from rich import print
 
 
 class ViewOrder(MasterView):
+
+    def _normalize_date_only(self, value) -> str:
+        if not value:
+            return datetime.now().strftime("%d/%m/%Y")
+
+        if isinstance(value, datetime):
+            return value.strftime("%d/%m/%Y")
+
+        s = str(value).strip()
+        for fmt in [
+            "%d/%m/%Y %H:%M:%S.%f",
+            "%d/%m/%Y %H:%M:%S",
+            "%d/%m/%Y %H:%M",
+            "%Y-%m-%d %H:%M:%S.%f",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M",
+            "%Y-%m-%dT%H:%M:%S.%f",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y%m%d%H%M%S",
+            "%Y%m%d",
+        ]:
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+        for fmt in ["%d/%m/%Y", "%Y-%m-%d"]:
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+        return datetime.now().strftime("%d/%m/%Y")
+
     def _normalize_datetime(self, value) -> str:
         if not value:
             return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -67,7 +103,10 @@ class ViewOrder(MasterView):
 
             account = order.get('account', '')
             date_raw = order.get('date', datetime.now().strftime('%d/%m/%Y'))
-            date = self._normalize_datetime(date_raw)
+            # Fecha del comprobante sin hora (dd/mm/yyyy)
+            date = self._normalize_date_only(date_raw)
+            # Fecha y hora de grabacion
+            date_time = self._normalize_datetime(date_raw)
             seller = order.get('seller', '')
             lat = order.get('lat', '0')
             lng = order.get('lng', '0')
@@ -126,6 +165,17 @@ class ViewOrder(MasterView):
                 return set_response(None, 404, result[0][1])
 
             result_id_invoice = result[0][2]
+            safe_fecha_dt = (date_time or "").replace("'", "''")
+            fecha_grab_sql = (
+                f"CASE WHEN ISDATE('{safe_fecha_dt}') = 1 THEN CONVERT(DATETIME,'{safe_fecha_dt}',121) "
+                f"ELSE GETDATE() END"
+            )
+            sql_fechas = f"""
+            UPDATE V_MV_CPTE
+            SET FECHAHORA_GRABACION = {fecha_grab_sql}
+            WHERE ID = {result_id_invoice}
+            """
+            exec_customer_sql(sql_fechas, " al actualizar fechas del comprobante", self.token_global, False)
             if marker:
                 safe_marker = marker.replace("'", "''")
                 sql_transporte = f"UPDATE V_MV_CPTE SET TRANSPORTE_NOMBRE='{safe_marker}' WHERE ID={result_id_invoice}"
@@ -148,11 +198,12 @@ class ViewOrder(MasterView):
                 idcomprobante = cpte_rows[0][0] if not cpte_err and cpte_rows else result_id_invoice
                 fecha_grabacion = cpte_rows[0][1] if not cpte_err and cpte_rows else None
                 safe_fecha = (date or "").replace("'", "''")
+                safe_fecha_dt = (date_time or "").replace("'", "''")
                 safe_fecha_grab = str(fecha_grabacion).replace("'", "''") if fecha_grabacion else ""
                 fecha_sql = (
                     f"CASE "
                     f"WHEN ISDATE('{safe_fecha_grab}') = 1 THEN CONVERT(DATETIME,'{safe_fecha_grab}',121) "
-                    f"WHEN ISDATE('{safe_fecha}') = 1 THEN CONVERT(DATETIME,'{safe_fecha}',103) "
+                    f"WHEN ISDATE('{safe_fecha_dt}') = 1 THEN CONVERT(DATETIME,'{safe_fecha_dt}',121) "
                     f"ELSE GETDATE() END"
                 )
                 fecha_cp_sql = (
