@@ -10,6 +10,41 @@ from functions.Log import Log
 
 
 class ViewPayment(MasterView):
+    def _normalize_date_only(self, value) -> str:
+        if not value:
+            return datetime.now().strftime("%d/%m/%Y")
+
+        if isinstance(value, datetime):
+            return value.strftime("%d/%m/%Y")
+
+        s = str(value).strip()
+        for fmt in [
+            "%d/%m/%Y %H:%M:%S.%f",
+            "%d/%m/%Y %H:%M:%S",
+            "%d/%m/%Y %H:%M",
+            "%Y-%m-%d %H:%M:%S.%f",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M",
+            "%Y-%m-%dT%H:%M:%S.%f",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y%m%d%H%M%S",
+            "%Y%m%d",
+        ]:
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+        for fmt in ["%d/%m/%Y", "%Y-%m-%d"]:
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+        return datetime.now().strftime("%d/%m/%Y")
+
     def _normalize_marker(self, marker: str, max_len: int = 20) -> str:
         if not marker:
             return ""
@@ -39,7 +74,8 @@ class ViewPayment(MasterView):
             try:
                 tc = payment.get('tc', '')
                 account = payment.get('account', '')
-                date = payment.get('date', datetime.now().strftime('%d/%m/%Y'))
+                date_raw = payment.get('date', datetime.now().strftime('%d/%m/%Y'))
+                date = self._normalize_date_only(date_raw)
                 seller = payment.get('seller', '')
                 amount = payment.get('amount', 0)
                 external_id = payment.get('externalId', '') or payment.get('external_id', '') or paymentId
@@ -107,7 +143,8 @@ class ViewPayment(MasterView):
 
             tc = payment.get('tc', '')
             account = payment.get('account', '')
-            date = payment.get('date', datetime.now().strftime('%d/%m/%Y'))
+            date_raw = payment.get('date', datetime.now().strftime('%d/%m/%Y'))
+            date = self._normalize_date_only(date_raw)
             seller = payment.get('seller', '')
             amount = payment.get('amount', 0)
             mp = payment.get('mp', '')

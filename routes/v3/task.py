@@ -9,6 +9,40 @@ import os
 
 
 class ViewTask(MasterView):
+    def _normalize_date_only(self, value) -> str:
+        if not value:
+            return datetime.now().strftime("%d/%m/%Y")
+
+        if isinstance(value, datetime):
+            return value.strftime("%d/%m/%Y")
+
+        s = str(value).strip()
+        for fmt in [
+            "%d/%m/%Y %H:%M:%S.%f",
+            "%d/%m/%Y %H:%M:%S",
+            "%d/%m/%Y %H:%M",
+            "%Y-%m-%d %H:%M:%S.%f",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M",
+            "%Y-%m-%dT%H:%M:%S.%f",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y%m%d%H%M%S",
+            "%Y%m%d",
+        ]:
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+        for fmt in ["%d/%m/%Y", "%Y-%m-%d"]:
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+        return datetime.now().strftime("%d/%m/%Y")
     def _delete_task_on_error(self, cpte_id: str):
         if not cpte_id:
             return
@@ -57,7 +91,7 @@ class ViewTask(MasterView):
             file_number_name = 1
             account = task.get('account', '')
             seller = task.get('seller', '')
-            date = task.get('date', datetime.now().strftime('%Y-%m-%d'))
+            date_raw = task.get('date', datetime.now().strftime('%d/%m/%Y'))
             obs = task.get('obs', '')
             sign = task.get('sign', '')
             id_task = task.get('task', '')
@@ -95,7 +129,7 @@ class ViewTask(MasterView):
             if image5a and image5b:
                 files.append(f"{image5a}{image5b}")
 
-            date = datetime.strptime(date, '%Y-%m-%d').strftime('%d/%m/%Y')
+            date = self._normalize_date_only(date_raw)
 
             marker = ""
             if external_id:
