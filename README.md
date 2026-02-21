@@ -77,3 +77,23 @@ FORM	            Rechazado debido a un error de formulario	            -
 
 
 # wsAlfa
+## IA Backend OpenAI
+
+Script backend movido desde `IA_ProcesarDocumentos`:
+- `ia_backend\ia_backend_proxy_server.py`
+
+Variables requeridas en `.env`:
+```env
+OPENAI_API_KEY=tu_api_key_openai
+IA_CLIENTS_JSON={"cliente_oliva":"secreto_largo_unico"}
+IA_BACKEND_HOST=0.0.0.0
+IA_BACKEND_PORT=8787
+IA_MAX_SKEW_SECONDS=300
+```
+
+Ejecutar:
+```powershell
+cd e:\Dev\wsAlfa
+python .\ia_backend\ia_backend_proxy_server.py
+```
+
