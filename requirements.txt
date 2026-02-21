@@ -63,4 +63,4 @@ certifi>=2020.4.5.1
 qrcode==6.1
 future==0.18.2
 git+https://github.com/reingart/pyafipws.git
-requests
+requestsopenai
