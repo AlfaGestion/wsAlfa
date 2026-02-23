@@ -1,11 +1,18 @@
-from flask import Blueprint, Flask, jsonify, request, Response
+﻿from flask import Blueprint, Flask, jsonify, request, Response
 
 from flask_cors import CORS
 from flask_mail import Mail
 from datetime import datetime
+import hashlib
+import hmac
+import json
 import os
-import urllib.error
-import urllib.request
+import time
+from typing import Any, Dict, Optional
+
+from openai import OpenAI
+from dotenv import load_dotenv
+from pathlib import Path
 
 from auth import validate_api_key
 
@@ -94,6 +101,157 @@ from routes.v3.utils import ViewUtils
 
 
 app = Flask(__name__)
+
+# Carga variables desde wsAlfa/.env al iniciar app.py
+_env_path = Path(__file__).resolve().parent / '.env'
+if _env_path.exists():
+    load_dotenv(dotenv_path=str(_env_path), override=True)
+else:
+    load_dotenv(override=True)
+
+
+NONCE_TTL_SECONDS = 600
+_IA_SEEN_NONCES: Dict[str, float] = {}
+_IA_CLIENTS: Optional[Dict[str, str]] = None
+_IA_OPENAI_CLIENT: Optional[OpenAI] = None
+
+
+def _cleanup_nonces(now: float) -> None:
+    expired = [k for k, ts in _IA_SEEN_NONCES.items() if (now - ts) > NONCE_TTL_SECONDS]
+    for k in expired:
+        _IA_SEEN_NONCES.pop(k, None)
+
+
+def _build_signature(secret: str, timestamp: str, nonce: str, body: str) -> str:
+    msg = f"{timestamp}.{nonce}.{body}".encode("utf-8")
+    return hmac.new(secret.encode("utf-8"), msg, hashlib.sha256).hexdigest()
+
+
+def _extract_output_text(resp: Any) -> str:
+    out_text = (getattr(resp, "output_text", None) or "").strip()
+    if out_text:
+        return out_text
+
+    parts = []
+    for item in getattr(resp, "output", []) or []:
+        for c in getattr(item, "content", []) or []:
+            t = getattr(c, "text", None)
+            if t:
+                parts.append(t)
+    return "\n".join(parts).strip()
+
+
+def _load_ia_clients() -> Dict[str, str]:
+    raw = (os.getenv("IA_CLIENTS_JSON") or "").strip()
+    if not raw:
+        raise RuntimeError("Falta IA_CLIENTS_JSON")
+
+    try:
+        data = json.loads(raw)
+    except Exception as e:
+        raise RuntimeError(f"IA_CLIENTS_JSON invalido: {e}") from e
+
+    if not isinstance(data, dict) or not data:
+        raise RuntimeError("IA_CLIENTS_JSON debe ser un objeto con al menos un cliente")
+
+    out: Dict[str, str] = {}
+    for k, v in data.items():
+        key = str(k).strip()
+        val = str(v).strip()
+        if key and val:
+            out[key] = val
+
+    if not out:
+        raise RuntimeError("IA_CLIENTS_JSON sin clientes validos")
+    return out
+
+
+def _get_ia_clients() -> Dict[str, str]:
+    global _IA_CLIENTS
+    if _IA_CLIENTS is None:
+        _IA_CLIENTS = _load_ia_clients()
+    return _IA_CLIENTS
+
+
+def _get_ia_openai_client() -> OpenAI:
+    global _IA_OPENAI_CLIENT
+    if _IA_OPENAI_CLIENT is None:
+        api_key = (os.getenv("OPENAI_API_KEY") or "").strip()
+        if not api_key:
+            raise RuntimeError("Falta OPENAI_API_KEY")
+        _IA_OPENAI_CLIENT = OpenAI(api_key=api_key)
+    return _IA_OPENAI_CLIENT
+
+
+def _sql_conn_str() -> str:
+    user = (os.getenv("SQL_USER") or "").strip()
+    pwd = (os.getenv("SQL_PASSWORD") or "").strip()
+    server = (os.getenv("SQL_SERVER") or "").strip()
+    db = (os.getenv("SQL_DATABASE") or "").strip()
+    driver = (os.getenv("SQL_DRIVER") or "").strip()
+    if not all([user, pwd, server, db, driver]):
+        return ""
+    return (
+        f"DRIVER={{{driver}}};"
+        f"SERVER={server};"
+        f"DATABASE={db};"
+        f"UID={user};"
+        f"PWD={pwd};"
+        "TrustServerCertificate=yes;"
+    )
+
+
+def _save_audit(idcliente_raw: Any, opcion: str, archivo: str, ok: bool, err: str, duracion_ms: int) -> Optional[str]:
+    if idcliente_raw is None or str(idcliente_raw).strip() == "":
+        return None
+
+    try:
+        idcliente = int(str(idcliente_raw).strip())
+    except Exception:
+        return "idcliente invalido"
+
+    conn_str = _sql_conn_str()
+    if not conn_str:
+        return "faltan variables SQL_*"
+
+    try:
+        import pyodbc  # type: ignore
+    except Exception:
+        return "falta pyodbc"
+
+    variants = [
+        (
+            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo, ok, error, duracion_ms) VALUES (?, ?, ?, ?, ?, ?)",
+            (idcliente, opcion, archivo, 1 if ok else 0, err, int(duracion_ms)),
+        ),
+        (
+            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo_nombre, ok, error, duracion_ms) VALUES (?, ?, ?, ?, ?, ?)",
+            (idcliente, opcion, archivo, 1 if ok else 0, err, int(duracion_ms)),
+        ),
+        (
+            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo) VALUES (?, ?, ?)",
+            (idcliente, opcion, archivo),
+        ),
+        (
+            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo_nombre) VALUES (?, ?, ?)",
+            (idcliente, opcion, archivo),
+        ),
+    ]
+
+    last_err = ""
+    for sql, params in variants:
+        try:
+            import pyodbc  # type: ignore
+            with pyodbc.connect(conn_str, timeout=5) as conn:
+                cur = conn.cursor()
+                cur.execute(sql, params)
+                conn.commit()
+                return None
+        except Exception as e:
+            last_err = str(e)
+
+    return f"sql_insert_error: {last_err}"
+
 
 app.config.from_object(AppConfig)
 
@@ -219,39 +377,102 @@ ViewTransmisionCodigosZonas.register(app, route_base=f'{API_PREFIX_V3}/transmisi
 
 @app.route('/v1/process', methods=['POST', 'OPTIONS'])
 def ia_process_proxy():
-    """Proxy hacia el backend IA dedicado para mantener compatibilidad en :5000."""
     if request.method == 'OPTIONS':
         return ('', 204)
 
-    upstream_url = (os.getenv('IA_PROXY_URL') or 'http://127.0.0.1:8787/v1/process').strip()
-    raw_body = request.get_data() or b''
+    raw_body_bytes = request.get_data() or b''
+    raw_body = raw_body_bytes.decode('utf-8', errors='replace')
 
-    forward_headers = {
-        'Content-Type': request.headers.get('Content-Type', 'application/json; charset=utf-8'),
-        'X-IA-Client-Id': request.headers.get('X-IA-Client-Id', ''),
-        'X-IA-Timestamp': request.headers.get('X-IA-Timestamp', ''),
-        'X-IA-Nonce': request.headers.get('X-IA-Nonce', ''),
-        'X-IA-Signature': request.headers.get('X-IA-Signature', ''),
-    }
-
-    req = urllib.request.Request(
-        upstream_url,
-        data=raw_body,
-        method='POST',
-        headers=forward_headers,
-    )
+    client_id = (request.headers.get('X-IA-Client-Id') or '').strip()
+    ts_raw = (request.headers.get('X-IA-Timestamp') or '').strip()
+    nonce = (request.headers.get('X-IA-Nonce') or '').strip()
+    sig = (request.headers.get('X-IA-Signature') or '').strip().lower()
+    if not client_id or not ts_raw or not nonce or not sig:
+        return jsonify({'ok': False, 'error': 'missing_auth_headers'}), 401
 
     try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            payload = resp.read()
-            ct = resp.headers.get('Content-Type', 'application/json; charset=utf-8')
-            return Response(payload, status=resp.status, content_type=ct)
-    except urllib.error.HTTPError as e:
-        payload = e.read()
-        ct = e.headers.get('Content-Type', 'application/json; charset=utf-8') if e.headers else 'application/json; charset=utf-8'
-        return Response(payload, status=e.code, content_type=ct)
+        ts = int(ts_raw)
+    except Exception:
+        return jsonify({'ok': False, 'error': 'bad_timestamp'}), 401
+
+    max_skew = int(os.getenv('IA_MAX_SKEW_SECONDS', '300') or '300')
+    now_i = int(time.time())
+    if abs(now_i - ts) > max_skew:
+        return jsonify({'ok': False, 'error': 'timestamp_out_of_range'}), 401
+
+    try:
+        clients = _get_ia_clients()
     except Exception as e:
-        return jsonify({'ok': False, 'error': f'ia_proxy_error: {e}'}), 502
+        return jsonify({'ok': False, 'error': f'ia_config_error: {e}'}), 500
+
+    secret = clients.get(client_id)
+    if not secret:
+        return jsonify({'ok': False, 'error': 'unknown_client'}), 403
+
+    nonce_key = f'{client_id}:{nonce}'
+    now_f = time.time()
+    _cleanup_nonces(now_f)
+    if nonce_key in _IA_SEEN_NONCES:
+        return jsonify({'ok': False, 'error': 'replay_detected'}), 409
+
+    expected = _build_signature(secret, ts_raw, nonce, raw_body)
+    if not hmac.compare_digest(expected, sig):
+        return jsonify({'ok': False, 'error': 'invalid_signature'}), 403
+    _IA_SEEN_NONCES[nonce_key] = now_f
+
+    try:
+        payload = json.loads(raw_body)
+    except Exception:
+        return jsonify({'ok': False, 'error': 'invalid_json_body'}), 400
+
+    model = str(payload.get('model') or '').strip()
+    max_output_tokens = int(payload.get('max_output_tokens') or 4000)
+    input_payload = payload.get('input')
+    text_payload = payload.get('text')
+
+    metadata = payload.get('metadata') if isinstance(payload.get('metadata'), dict) else {}
+    idcliente = payload.get('idcliente') if payload.get('idcliente') is not None else metadata.get('idcliente')
+    opcion = str(payload.get('opcion') or metadata.get('opcion') or 'FACTURAS').strip() or 'FACTURAS'
+    archivo = str(payload.get('archivo') or metadata.get('archivo') or '').strip()
+
+    if not model:
+        return jsonify({'ok': False, 'error': 'model_required'}), 400
+    if not isinstance(input_payload, list):
+        return jsonify({'ok': False, 'error': 'input_required'}), 400
+
+    t0 = time.time()
+    try:
+        client = _get_ia_openai_client()
+        req: Dict[str, Any] = {
+            'model': model,
+            'max_output_tokens': max_output_tokens,
+            'input': input_payload,
+        }
+        if text_payload is not None:
+            req['text'] = text_payload
+
+        resp = client.responses.create(**req)
+        output_text = _extract_output_text(resp)
+    except Exception as e:
+        dur_ms = max(0, int((time.time() - t0) * 1000))
+        sql_err = _save_audit(idcliente, opcion, archivo, False, str(e), dur_ms)
+        if sql_err:
+            print(f'[AUDIT] {sql_err}')
+        return jsonify({'ok': False, 'error': f'openai_error: {e}'}), 500
+
+    if not output_text:
+        dur_ms = max(0, int((time.time() - t0) * 1000))
+        sql_err = _save_audit(idcliente, opcion, archivo, False, 'empty_model_response', dur_ms)
+        if sql_err:
+            print(f'[AUDIT] {sql_err}')
+        return jsonify({'ok': False, 'error': 'empty_model_response'}), 502
+
+    dur_ms = max(0, int((time.time() - t0) * 1000))
+    sql_err = _save_audit(idcliente, opcion, archivo, True, '', dur_ms)
+    if sql_err:
+        print(f'[AUDIT] {sql_err}')
+
+    return jsonify({'ok': True, 'model': model, 'output_text': output_text}), 200
 
 
 @app.route('/api/ping')
@@ -291,7 +512,7 @@ def f_str_to_date(value):
 # @app.after_request
 # def after_request(response):
 #     """
-#     Esta función es vital para que funcione con Fetch de JS.
+#     Esta funciÃƒÆ’Ã‚Â³n es vital para que funcione con Fetch de JS.
 #     Valida la peticion Options
 #     """
 #     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -305,3 +526,4 @@ def f_str_to_date(value):
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
