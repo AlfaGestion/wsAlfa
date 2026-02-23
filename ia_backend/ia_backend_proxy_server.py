@@ -21,10 +21,79 @@ import json
 import os
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv
 from openai import OpenAI
+
+
+def _sql_conn_str() -> str:
+    user = (os.getenv("SQL_USER") or "").strip()
+    pwd = (os.getenv("SQL_PASSWORD") or "").strip()
+    server = (os.getenv("SQL_SERVER") or "").strip()
+    db = (os.getenv("SQL_DATABASE") or "").strip()
+    driver = (os.getenv("SQL_DRIVER") or "").strip()
+    if not all([user, pwd, server, db, driver]):
+        return ""
+    return (
+        f"DRIVER={{{driver}}};"
+        f"SERVER={server};"
+        f"DATABASE={db};"
+        f"UID={user};"
+        f"PWD={pwd};"
+        "TrustServerCertificate=yes;"
+    )
+
+
+def _save_audit(idcliente_raw: Any, opcion: str, archivo: str, ok: bool, err: str, duracion_ms: int) -> Optional[str]:
+    if idcliente_raw is None or str(idcliente_raw).strip() == "":
+        return None
+
+    try:
+        idcliente = int(str(idcliente_raw).strip())
+    except Exception:
+        return "idcliente invalido"
+
+    conn_str = _sql_conn_str()
+    if not conn_str:
+        return "faltan variables SQL_*"
+
+    try:
+        import pyodbc  # type: ignore
+    except Exception:
+        return "falta pyodbc"
+
+    variants = [
+        (
+            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo, ok, error, duracion_ms) VALUES (?, ?, ?, ?, ?, ?)",
+            (idcliente, opcion, archivo, 1 if ok else 0, err, int(duracion_ms)),
+        ),
+        (
+            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo_nombre, ok, error, duracion_ms) VALUES (?, ?, ?, ?, ?, ?)",
+            (idcliente, opcion, archivo, 1 if ok else 0, err, int(duracion_ms)),
+        ),
+        (
+            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo) VALUES (?, ?, ?)",
+            (idcliente, opcion, archivo),
+        ),
+        (
+            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo_nombre) VALUES (?, ?, ?)",
+            (idcliente, opcion, archivo),
+        ),
+    ]
+
+    last_err = ""
+    for sql, params in variants:
+        try:
+            with pyodbc.connect(conn_str, timeout=5) as conn:
+                cur = conn.cursor()
+                cur.execute(sql, params)
+                conn.commit()
+                return None
+        except Exception as e:
+            last_err = str(e)
+
+    return f"sql_insert_error: {last_err}"
 
 
 NONCE_TTL_SECONDS = 600
@@ -124,6 +193,13 @@ class IAHandler(BaseHTTPRequestHandler):
         input_payload = payload.get("input")
         text_payload = payload.get("text")
 
+        metadata = payload.get("metadata") if isinstance(payload.get("metadata"), dict) else {}
+        idcliente = payload.get("idcliente")
+        if idcliente is None:
+            idcliente = metadata.get("idcliente")
+        opcion = str(payload.get("opcion") or metadata.get("opcion") or "FACTURAS").strip() or "FACTURAS"
+        archivo = str(payload.get("archivo") or metadata.get("archivo") or "").strip()
+
         if not model:
             self._json(400, {"ok": False, "error": "model_required"})
             return
@@ -131,6 +207,7 @@ class IAHandler(BaseHTTPRequestHandler):
             self._json(400, {"ok": False, "error": "input_required"})
             return
 
+        t0 = time.time()
         try:
             req: Dict[str, Any] = {
                 "model": model,
@@ -142,12 +219,25 @@ class IAHandler(BaseHTTPRequestHandler):
             resp = OPENAI_CLIENT.responses.create(**req)
             output_text = _extract_output_text(resp)
         except Exception as e:
+            dur_ms = max(0, int((time.time() - t0) * 1000))
+            sql_err = _save_audit(idcliente, opcion, archivo, False, str(e), dur_ms)
+            if sql_err:
+                print(f"[AUDIT] {sql_err}")
             self._json(500, {"ok": False, "error": f"openai_error: {e}"})
             return
 
         if not output_text:
+            dur_ms = max(0, int((time.time() - t0) * 1000))
+            sql_err = _save_audit(idcliente, opcion, archivo, False, "empty_model_response", dur_ms)
+            if sql_err:
+                print(f"[AUDIT] {sql_err}")
             self._json(502, {"ok": False, "error": "empty_model_response"})
             return
+
+        dur_ms = max(0, int((time.time() - t0) * 1000))
+        sql_err = _save_audit(idcliente, opcion, archivo, True, "", dur_ms)
+        if sql_err:
+            print(f"[AUDIT] {sql_err}")
 
         self._json(
             200,
