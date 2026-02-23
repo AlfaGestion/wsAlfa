@@ -1,8 +1,11 @@
-from flask import Blueprint, Flask, jsonify
+from flask import Blueprint, Flask, jsonify, request, Response
 
 from flask_cors import CORS
 from flask_mail import Mail
 from datetime import datetime
+import os
+import urllib.error
+import urllib.request
 
 from auth import validate_api_key
 
@@ -213,6 +216,43 @@ ViewTransmisionCodigosZonas.register(app, route_base=f'{API_PREFIX_V3}/transmisi
 # ViewAuth.register(app, route_base=f'{API_PREFIX_V3}/auth')
 # ViewSession.register(app, route_base=f'{API_PREFIX_V3}/session')
 # TODO agregar logs en todos los puntos de la api
+
+@app.route('/v1/process', methods=['POST', 'OPTIONS'])
+def ia_process_proxy():
+    """Proxy hacia el backend IA dedicado para mantener compatibilidad en :5000."""
+    if request.method == 'OPTIONS':
+        return ('', 204)
+
+    upstream_url = (os.getenv('IA_PROXY_URL') or 'http://127.0.0.1:8787/v1/process').strip()
+    raw_body = request.get_data() or b''
+
+    forward_headers = {
+        'Content-Type': request.headers.get('Content-Type', 'application/json; charset=utf-8'),
+        'X-IA-Client-Id': request.headers.get('X-IA-Client-Id', ''),
+        'X-IA-Timestamp': request.headers.get('X-IA-Timestamp', ''),
+        'X-IA-Nonce': request.headers.get('X-IA-Nonce', ''),
+        'X-IA-Signature': request.headers.get('X-IA-Signature', ''),
+    }
+
+    req = urllib.request.Request(
+        upstream_url,
+        data=raw_body,
+        method='POST',
+        headers=forward_headers,
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            payload = resp.read()
+            ct = resp.headers.get('Content-Type', 'application/json; charset=utf-8')
+            return Response(payload, status=resp.status, content_type=ct)
+    except urllib.error.HTTPError as e:
+        payload = e.read()
+        ct = e.headers.get('Content-Type', 'application/json; charset=utf-8') if e.headers else 'application/json; charset=utf-8'
+        return Response(payload, status=e.code, content_type=ct)
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'ia_proxy_error: {e}'}), 502
+
 
 @app.route('/api/ping')
 def ping():
