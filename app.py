@@ -219,36 +219,40 @@ def _save_audit(idcliente_raw: Any, opcion: str, archivo: str, ok: bool, err: st
     except Exception:
         return "falta pyodbc"
 
-    variants = [
-        (
-            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo, ok, error, duracion_ms) VALUES (?, ?, ?, ?, ?, ?)",
-            (idcliente, opcion, archivo, 1 if ok else 0, err, int(duracion_ms)),
-        ),
-        (
-            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo_nombre, ok, error, duracion_ms) VALUES (?, ?, ?, ?, ?, ?)",
-            (idcliente, opcion, archivo, 1 if ok else 0, err, int(duracion_ms)),
-        ),
-        (
-            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo) VALUES (?, ?, ?)",
-            (idcliente, opcion, archivo),
-        ),
-        (
-            "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo_nombre) VALUES (?, ?, ?)",
-            (idcliente, opcion, archivo),
-        ),
+    # Evita perder auditoría si alguna columna en SQL es más corta de lo esperado.
+    len_profiles = [
+        (128, 255, 1024),
+        (64, 128, 512),
+        (32, 64, 256),
+    ]
+    variants_sql = [
+        "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo, ok, error, duracion_ms) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo_nombre, ok, error, duracion_ms) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo) VALUES (?, ?, ?)",
+        "INSERT INTO dbo.IA_ConsultasGPT (idcliente, opcion, archivo_nombre) VALUES (?, ?, ?)",
     ]
 
     last_err = ""
-    for sql, params in variants:
-        try:
-            import pyodbc  # type: ignore
-            with pyodbc.connect(conn_str, timeout=5) as conn:
-                cur = conn.cursor()
-                cur.execute(sql, params)
-                conn.commit()
-                return None
-        except Exception as e:
-            last_err = str(e)
+    for max_op, max_arch, max_err in len_profiles:
+        op = (str(opcion or "").strip() or "FACTURAS")[:max_op]
+        ar = (str(archivo or "").strip())[:max_arch]
+        er = (str(err or "").strip())[:max_err]
+        variants = [
+            (variants_sql[0], (idcliente, op, ar, 1 if ok else 0, er, int(duracion_ms))),
+            (variants_sql[1], (idcliente, op, ar, 1 if ok else 0, er, int(duracion_ms))),
+            (variants_sql[2], (idcliente, op, ar)),
+            (variants_sql[3], (idcliente, op, ar)),
+        ]
+        for sql, params in variants:
+            try:
+                import pyodbc  # type: ignore
+                with pyodbc.connect(conn_str, timeout=5) as conn:
+                    cur = conn.cursor()
+                    cur.execute(sql, params)
+                    conn.commit()
+                    return None
+            except Exception as e:
+                last_err = str(e)
 
     return f"sql_insert_error: {last_err}"
 
@@ -507,15 +511,15 @@ def ia_process_proxy():
         sql_err = _save_audit(idcliente, opcion, archivo, False, str(e), dur_ms)
         if sql_err:
             print(f'[AUDIT] {sql_err}')
-            _append_audit_fallback(
-                idcliente=idcliente,
-                opcion=opcion,
-                archivo=archivo,
-                ok=False,
-                error=str(e),
-                duracion_ms=dur_ms,
-                sql_error=sql_err,
-            )
+        _append_audit_fallback(
+            idcliente=idcliente,
+            opcion=opcion,
+            archivo=archivo,
+            ok=False,
+            error=str(e),
+            duracion_ms=dur_ms,
+            sql_error=sql_err or '',
+        )
         return jsonify({'ok': False, 'error': f'openai_error: {e}'}), 500
 
     if not output_text:
@@ -523,30 +527,30 @@ def ia_process_proxy():
         sql_err = _save_audit(idcliente, opcion, archivo, False, 'empty_model_response', dur_ms)
         if sql_err:
             print(f'[AUDIT] {sql_err}')
-            _append_audit_fallback(
-                idcliente=idcliente,
-                opcion=opcion,
-                archivo=archivo,
-                ok=False,
-                error='empty_model_response',
-                duracion_ms=dur_ms,
-                sql_error=sql_err,
-            )
+        _append_audit_fallback(
+            idcliente=idcliente,
+            opcion=opcion,
+            archivo=archivo,
+            ok=False,
+            error='empty_model_response',
+            duracion_ms=dur_ms,
+            sql_error=sql_err or '',
+        )
         return jsonify({'ok': False, 'error': 'empty_model_response'}), 502
 
     dur_ms = max(0, int((time.time() - t0) * 1000))
     sql_err = _save_audit(idcliente, opcion, archivo, True, '', dur_ms)
     if sql_err:
         print(f'[AUDIT] {sql_err}')
-        _append_audit_fallback(
-            idcliente=idcliente,
-            opcion=opcion,
-            archivo=archivo,
-            ok=True,
-            error='',
-            duracion_ms=dur_ms,
-            sql_error=sql_err,
-        )
+    _append_audit_fallback(
+        idcliente=idcliente,
+        opcion=opcion,
+        archivo=archivo,
+        ok=True,
+        error='',
+        duracion_ms=dur_ms,
+        sql_error=sql_err or '',
+    )
 
     return jsonify({'ok': True, 'model': model, 'output_text': output_text}), 200
 
