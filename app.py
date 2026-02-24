@@ -253,6 +253,37 @@ def _save_audit(idcliente_raw: Any, opcion: str, archivo: str, ok: bool, err: st
     return f"sql_insert_error: {last_err}"
 
 
+def _append_audit_fallback(
+    *,
+    idcliente: Any,
+    opcion: str,
+    archivo: str,
+    ok: bool,
+    error: str,
+    duracion_ms: int,
+    sql_error: str,
+) -> None:
+    """Persistencia local cuando SQL no está disponible."""
+    try:
+        log_dir = Path(__file__).resolve().parent / "LOG"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        row = {
+            "ts": int(time.time()),
+            "idcliente": idcliente,
+            "opcion": opcion,
+            "archivo_nombre": archivo,
+            "ok": 1 if ok else 0,
+            "error": error or "",
+            "duracion_ms": int(duracion_ms),
+            "sql_error": sql_error or "",
+        }
+        with (log_dir / "ia_audit_fallback.jsonl").open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    except Exception:
+        # Nunca cortar la respuesta de API por error de fallback.
+        return
+
+
 app.config.from_object(AppConfig)
 
 
@@ -432,8 +463,26 @@ def ia_process_proxy():
 
     metadata = payload.get('metadata') if isinstance(payload.get('metadata'), dict) else {}
     idcliente = payload.get('idcliente') if payload.get('idcliente') is not None else metadata.get('idcliente')
-    opcion = str(payload.get('opcion') or metadata.get('opcion') or 'FACTURAS').strip() or 'FACTURAS'
-    archivo = str(payload.get('archivo') or metadata.get('archivo') or '').strip()
+    opcion = (str(payload.get('opcion') or payload.get('task') or metadata.get('opcion') or metadata.get('task') or 'FACTURAS').strip() or 'FACTURAS').upper()
+    archivo = str(
+        payload.get('archivo_nombre')
+        or payload.get('source_filename')
+        or payload.get('filename')
+        or payload.get('archivoNombre')
+        or payload.get('file_name')
+        or payload.get('archivo')
+        or metadata.get('archivo_nombre')
+        or metadata.get('source_filename')
+        or metadata.get('filename')
+        or metadata.get('archivoNombre')
+        or metadata.get('file_name')
+        or metadata.get('archivo')
+        or request.headers.get('X-IA-Archivo-Nombre')
+        or request.headers.get('X-IA-Source-Filename')
+        or request.headers.get('X-IA-Filename')
+        or request.headers.get('X-IA-File-Name')
+        or ''
+    ).strip()
 
     if not model:
         return jsonify({'ok': False, 'error': 'model_required'}), 400
@@ -458,6 +507,15 @@ def ia_process_proxy():
         sql_err = _save_audit(idcliente, opcion, archivo, False, str(e), dur_ms)
         if sql_err:
             print(f'[AUDIT] {sql_err}')
+            _append_audit_fallback(
+                idcliente=idcliente,
+                opcion=opcion,
+                archivo=archivo,
+                ok=False,
+                error=str(e),
+                duracion_ms=dur_ms,
+                sql_error=sql_err,
+            )
         return jsonify({'ok': False, 'error': f'openai_error: {e}'}), 500
 
     if not output_text:
@@ -465,12 +523,30 @@ def ia_process_proxy():
         sql_err = _save_audit(idcliente, opcion, archivo, False, 'empty_model_response', dur_ms)
         if sql_err:
             print(f'[AUDIT] {sql_err}')
+            _append_audit_fallback(
+                idcliente=idcliente,
+                opcion=opcion,
+                archivo=archivo,
+                ok=False,
+                error='empty_model_response',
+                duracion_ms=dur_ms,
+                sql_error=sql_err,
+            )
         return jsonify({'ok': False, 'error': 'empty_model_response'}), 502
 
     dur_ms = max(0, int((time.time() - t0) * 1000))
     sql_err = _save_audit(idcliente, opcion, archivo, True, '', dur_ms)
     if sql_err:
         print(f'[AUDIT] {sql_err}')
+        _append_audit_fallback(
+            idcliente=idcliente,
+            opcion=opcion,
+            archivo=archivo,
+            ok=True,
+            error='',
+            duracion_ms=dur_ms,
+            sql_error=sql_err,
+        )
 
     return jsonify({'ok': True, 'model': model, 'output_text': output_text}), 200
 
