@@ -4,6 +4,7 @@ from functions.responses import set_response
 from flask_classful import route
 from flask import request
 from routes.v2.master import MasterView
+from configs.connection_alfa import get_conn_alfa
 
 
 class ViewCustomer(MasterView):
@@ -269,3 +270,35 @@ class ViewCustomer(MasterView):
 
         response = set_response(result, 200 if not error else 404, "" if not error else f"Error al desbloquear la cuenta {code}")
         return response
+
+    @route('/idcliente_by_license/<string:licencia_principal>', methods=['GET'])
+    def get_idcliente_by_license(self, licencia_principal: str):
+        licencia = (licencia_principal or '').strip()
+        if not licencia:
+            return set_response([], 404, 'Debe informar la licencia principal')
+
+        conn = get_conn_alfa()
+        if conn == '':
+            return set_response([], 404, 'No se pudo conectar a ALFA_CENTRAL')
+
+        try:
+            sql = """
+            SELECT TOP 1 idcliente
+            FROM clientes
+            WHERE LTRIM(RTRIM(licenciaprincipal)) = LTRIM(RTRIM(?))
+            """
+            cursor = conn.cursor()
+            cursor.execute(sql, (licencia,))
+            row = cursor.fetchone()
+        except Exception as e:
+            return set_response([], 404, f'Error al buscar idcliente: {e}')
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        if not row:
+            return set_response([], 404, f'No existe un cliente con la licencia {licencia}')
+
+        return set_response({'idcliente': str(row[0]).strip(), 'licenciaprincipal': licencia}, 200)
