@@ -1,0 +1,16 @@
+{"ts": 1771956425, "idcliente": "112011013", "opcion": "AUTOMATICO_LIQUIDACION", "archivo_nombre": "RE-LiquidacionMensual-074-28775041-VisaD_bito.pdf", "ok": 1, "error": "", "duracion_ms": 38945, "sql_error": "sql_insert_error: ('22001', '[22001] [Microsoft][SQL Server Native Client 11.0][SQL Server]String or binary data would be truncated. (8152) (SQLExecDirectW); [22001] [Microsoft][SQL Server Native Client 11.0][SQL Server]The statement has been terminated. (3621)')"}
+{"ts": 1771960660, "idcliente": "112010001", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-VisaD_bito.pdf", "ok": 1, "error": "", "duracion_ms": 27857, "sql_error": ""}
+{"ts": 1771961146, "idcliente": "112010001", "opcion": "FACTURAS", "archivo_nombre": "FACT_3hojasEn1.pdf", "ok": 1, "error": "", "duracion_ms": 92209, "sql_error": ""}
+{"ts": 1771961783, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC VALLE HERMOSO 23-02.pdf", "ok": 1, "error": "", "duracion_ms": 22079, "sql_error": ""}
+{"ts": 1771962407, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FLETE FRIOLIM 23-02.jpeg", "ok": 1, "error": "", "duracion_ms": 19401, "sql_error": ""}
+{"ts": 1771963060, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC FRIOLIM 23-02.jpeg", "ok": 1, "error": "", "duracion_ms": 32548, "sql_error": ""}
+{"ts": 1771963994, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC IMAZ 24-020.pdf", "ok": 1, "error": "", "duracion_ms": 17947, "sql_error": ""}
+{"ts": 1771967909, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC HUMUS 24-02.pdf", "ok": 1, "error": "", "duracion_ms": 31866, "sql_error": ""}
+{"ts": 1772026045, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC MARIANA HUERTA 24-02.jpeg", "ok": 1, "error": "", "duracion_ms": 26992, "sql_error": ""}
+{"ts": 1772027794, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GAMMA 25-02 1.pdf", "ok": 1, "error": "", "duracion_ms": 27342, "sql_error": ""}
+{"ts": 1772028418, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GAMMA 25-02 2 .pdf", "ok": 1, "error": "", "duracion_ms": 51617, "sql_error": ""}
+{"ts": 1772028586, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GAMMA 25-02 2  (1).pdf", "ok": 1, "error": "", "duracion_ms": 38235, "sql_error": ""}
+{"ts": 1772034207, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "OK comprobante-MEN-COM00483293200342632026-01-31 VISA.pdf", "ok": 1, "error": "", "duracion_ms": 25019, "sql_error": ""}
+{"ts": 1772035119, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CAGNOLI 25-02.jpeg", "ok": 1, "error": "", "duracion_ms": 44850, "sql_error": ""}
+{"ts": 1772037631, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "OK comprobante-MEN-COM00483293200342632026-01-31 VISA.pdf", "ok": 1, "error": "", "duracion_ms": 28657, "sql_error": ""}
+{"ts": 1772037762, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC VACALIN 25-02.jpeg", "ok": 1, "error": "", "duracion_ms": 35826, "sql_error": ""}
