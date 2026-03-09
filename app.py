@@ -62,6 +62,7 @@ from routes.v2.user_contact import UserContactView
 from routes.v2.utils import UtilsView
 from routes.v2.tables import TablesView
 from routes.v2.report import ReportView
+from routes.AGW.V1.router import agw_v1_bp
 
 from routes.v2.alfa.sharedb import AlfaShareDBView
 
@@ -314,6 +315,7 @@ apiv2_bp = Blueprint('apiv2_bp', __name__,
 
 apiv2_bp.register_blueprint(admin)
 app.register_blueprint(apiv2_bp, url_prefix=f'{API_PREFIX}')
+app.register_blueprint(agw_v1_bp, url_prefix='/AGW/V1')
 
 # Endpoints generales
 AuthView.register(app, route_base=f'{API_PREFIX}')

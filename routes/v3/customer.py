@@ -269,3 +269,4 @@ class ViewCustomer(MasterView):
 
         response = set_response(result, 200 if not error else 404, "" if not error else f"Error al desbloquear la cuenta {code}")
         return response
+
