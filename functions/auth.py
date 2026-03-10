@@ -1,5 +1,5 @@
 from flask import json
-from configs.connection import conn
+from configs.connection import conn, get_connection
 from datetime import datetime
 from functions.Log import Log
 from configs.query import config_query
@@ -14,10 +14,11 @@ def is_valid_account(data):
     username = data["username"]
 
     try:
-        # cursor = conn.cursor().execute(
-        #     f"SELECT idcliente, password FROM clientes WHERE idcliente='{username}'")
+        sql_conn = get_connection(force_new=True)
+        if sql_conn == '':
+            return True
 
-        cursor = conn.cursor().execute(
+        cursor = sql_conn.cursor().execute(
             f"""SELECT a.idcliente, a.[user], a.password, isnull(b.superadmin, 0) as superadmin,isnull(a.isAdmin,0) as is_admin,isnull(b.type,'A') as type
             FROM users a LEFT JOIN clientes b
             ON a.idcliente = b.idcliente
@@ -29,7 +30,7 @@ def is_valid_account(data):
                 data = complete_data_login(data=data, username=username, account=row.idcliente, superadmin=row.superadmin, admin=row.is_admin,
                                            bloqueado=0, token="", dbname="", nombre="",
                                            company_name="", account_type=row.type, id_seller="", idlista="", hide_prices=0, email="",
-                                           idcaja="", zona="",sucursal_defecto="")
+                                           idcaja="", zona="", sucursal_defecto="")
                 return False
         return True
     except Exception as e:
@@ -49,7 +50,11 @@ def register_session(token: str, data: json, default_session: bool = True):
     created_at: str = ""
 
     try:
-        cursor = conn.cursor().execute(
+        sql_conn = get_connection(force_new=True)
+        if sql_conn == '':
+            return False
+
+        cursor = sql_conn.cursor().execute(
             f"SELECT idcliente, nombre FROM clientes WHERE idcliente='{account}'")
 
         for row in cursor.fetchall():
@@ -62,8 +67,8 @@ def register_session(token: str, data: json, default_session: bool = True):
             values ('{token.replace('.','')}','{account}','{name}','{username}','{created_at}')
             """
 
-        cursor = conn.cursor().execute(query)
-        conn.commit()
+        sql_conn.cursor().execute(query)
+        sql_conn.commit()
         return True
     except Exception as e:
         print(f"Ocurrió un error al obtener la clave el usuario {username}: ", e)
@@ -75,17 +80,17 @@ def get_config():
     result = []
 
     try:
-        # print(config_query)
-        cursor = conn.cursor().execute(config_query)
+        sql_conn = get_connection(force_new=True)
+        if sql_conn == '':
+            return []
+
+        cursor = sql_conn.cursor().execute(config_query)
 
         for row in cursor.fetchall():
-            # print("asdasd")
             result.append({
                 'key': row.clave,
                 'value': row.valor,
             })
-
-            # print(result)
         return result
     except Exception as e:
         Log.create(f"Error al obtener la configuración : {e}")
@@ -93,9 +98,7 @@ def get_config():
 
 
 def complete_data_login(data: dict, username: str, account: str, superadmin: int, admin: int, account_type: str, token: str, dbname: str, company_name: str,  nombre: str, idlista: str, cf_account: str = '', hide_prices: int = 0,
-                        id_seller: str = '', auth_menu: str = '', id_driver: str = '', email: str = '', idcaja: str = '', bloqueado: int = 0, zona: str = "", sucursal_defecto:str=''):
-
-    
+                        id_seller: str = '', auth_menu: str = '', id_driver: str = '', email: str = '', idcaja: str = '', bloqueado: int = 0, zona: str = "", sucursal_defecto: str = ''):
 
     data["username"] = username
     data["account"] = account
@@ -119,9 +122,5 @@ def complete_data_login(data: dict, username: str, account: str, superadmin: int
     data["branch_default"] = sucursal_defecto
     data["final_prices"] = True
     data["ML_API_ID"] = ML_API_ID
-
-    # data["config"] = get_config()
-
-    # print(data)
 
     return data
