@@ -221,7 +221,7 @@ def _save_audit(idcliente_raw: Any, opcion: str, archivo: str, ok: bool, err: st
     except Exception:
         return "falta pyodbc"
 
-    # Evita perder auditorÃ­a si alguna columna en SQL es mÃ¡s corta de lo esperado.
+    # Evita perder auditorÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­a si alguna columna en SQL es mÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡s corta de lo esperado.
     len_profiles = [
         (128, 255, 1024),
         (64, 128, 512),
@@ -269,7 +269,7 @@ def _append_audit_fallback(
     duracion_ms: int,
     sql_error: str,
 ) -> None:
-    """Persistencia local cuando SQL no estÃ¡ disponible."""
+    """Persistencia local cuando SQL no estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ disponible."""
     try:
         log_dir = Path(__file__).resolve().parent / "LOG"
         log_dir.mkdir(parents=True, exist_ok=True)
@@ -301,7 +301,7 @@ api_cors_config = {
     "allow_headers": ["Authorization", "Content-Type"]
 }
 
-CORS(app, resources={"/api/*": api_cors_config},
+CORS(app, resources={"/api/*": api_cors_config, "/AGW/*": api_cors_config},
      supports_credentials=True)
 
 
@@ -596,7 +596,7 @@ def f_str_to_date(value):
 # @app.after_request
 # def after_request(response):
 #     """
-#     Esta funciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n es vital para que funcione con Fetch de JS.
+#     Esta funciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n es vital para que funcione con Fetch de JS.
 #     Valida la peticion Options
 #     """
 #     response.headers.add('Access-Control-Allow-Origin', '*')

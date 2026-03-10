@@ -2,51 +2,51 @@
 
 ## 1. Objetivo
 
-Este documento baja a tierra cómo organizar `wsAlfa` sin romper lo existente, tomando como criterio principal separar:
+Este documento baja a tierra cÃ³mo organizar `wsAlfa` sin romper lo existente, tomando como criterio principal separar:
 
-- lo legacy que ya está en producción
-- lo nuevo que pertenece a Alfa Gestión Web
-- la lógica reusable fuera de las rutas
+- lo legacy que ya estÃ¡ en producciÃ³n
+- lo nuevo que pertenece a Alfa GestiÃ³n Web
+- la lÃ³gica reusable fuera de las rutas
 
-## 2. Definición práctica de legacy
+## 2. DefiniciÃ³n prÃ¡ctica de legacy
 
 En este proyecto, `legacy` significa:
 
 - rutas o contratos ya consumidos por clientes reales
 - partes que usa ALFA Go o la web actual
-- código que no conviene rediseñar agresivamente porque puede romper compatibilidad
+- cÃ³digo que no conviene rediseÃ±ar agresivamente porque puede romper compatibilidad
 
-No significa “malo”. Significa “hay que tocarlo con cuidado”.
+No significa â€œmaloâ€. Significa â€œhay que tocarlo con cuidadoâ€.
 
-## 3. Regla principal de decisión
+## 3. Regla principal de decisiÃ³n
 
 Antes de crear algo nuevo, responder:
 
-1. ¿Esto lo consume la app móvil, la web o ambos?
-2. ¿Es una extensión chica de algo existente o un módulo nuevo?
-3. ¿Necesita compatibilidad con contratos actuales?
-4. ¿Puede nacer con diseño limpio?
+1. Â¿Esto lo consume la app mÃ³vil, la web o ambos?
+2. Â¿Es una extensiÃ³n chica de algo existente o un mÃ³dulo nuevo?
+3. Â¿Necesita compatibilidad con contratos actuales?
+4. Â¿Puede nacer con diseÃ±o limpio?
 
-## 4. Qué queda dónde
+## 4. QuÃ© queda dÃ³nde
 
 ## `routes/v1`
 - mantenimiento
 - compatibilidad vieja
-- sin módulos nuevos grandes
+- sin mÃ³dulos nuevos grandes
 
 ## `routes/v2`
-- contratos existentes usados por móvil o web actual
+- contratos existentes usados por mÃ³vil o web actual
 - fixes y ampliaciones chicas
-- no usar como destino de módulos nuevos grandes
+- no usar como destino de mÃ³dulos nuevos grandes
 
 ## `routes/v3`
-- solo si realmente es una nueva versión del mismo contrato
-- no usar como “cajón” de funcionalidades nuevas
+- solo si realmente es una nueva versiÃ³n del mismo contrato
+- no usar como â€œcajÃ³nâ€ de funcionalidades nuevas
 
 ## `routes/AGW/V1`
-- todo módulo nuevo propio de Alfa Gestión Web
-- conciliación de tarjetas
-- importación bancaria
+- todo mÃ³dulo nuevo propio de Alfa GestiÃ³n Web
+- conciliaciÃ³n de tarjetas
+- importaciÃ³n bancaria
 - dashboards nuevos de web
 - flujos asistidos por IA
 - integraciones de web que no necesitan heredar deuda de `v2`
@@ -86,34 +86,34 @@ wsAlfa/
     ... legado compartido actual ...
 ```
 
-## 6. Qué va en cada capa
+## 6. QuÃ© va en cada capa
 
 ## `routes`
 Solo:
 - request
-- validación de parámetros
+- validaciÃ³n de parÃ¡metros
 - llamada al servicio
 - armado de response
 
-No debería contener:
+No deberÃ­a contener:
 - SQL complejo
 - matching
 - parsing de PDF grande
-- lógica de conciliación
+- lÃ³gica de conciliaciÃ³n
 
 ## `services`
-Acá vive la lógica de negocio.
+AcÃ¡ vive la lÃ³gica de negocio.
 
 Ejemplos:
-- crear conciliación
+- crear conciliaciÃ³n
 - analizar PDFs
 - inferir banco/adquirente
-- decidir períodos
+- decidir perÃ­odos
 - correr matching
 - preparar sugerencias
 
 ## `repositories`
-Acá vive el acceso a datos.
+AcÃ¡ vive el acceso a datos.
 
 Ejemplos:
 - leer `MV_ASIENTOS`
@@ -123,15 +123,15 @@ Ejemplos:
 - actualizar `MV_ASIENTOS`
 
 ## `parsers`
-Acá vive la lectura específica de PDFs.
+AcÃ¡ vive la lectura especÃ­fica de PDFs.
 
 Ejemplos:
 - parser Visa
 - parser Mastercard
 - parser Amex
-- parser genérico
+- parser genÃ©rico
 
-## 7. Aplicación concreta a conciliación de tarjetas
+## 7. AplicaciÃ³n concreta a conciliaciÃ³n de tarjetas
 
 ## Ruta recomendada
 - `routes/AGW/V1/card_reconciliation.py`
@@ -150,7 +150,7 @@ Ejemplos:
 - `parsers/bank_liquidations/visa_parser.py`
 - `parsers/bank_liquidations/mastercard_parser.py`
 
-## 8. Endpoints sugeridos para conciliación
+## 8. Endpoints sugeridos para conciliaciÃ³n
 
 Bajo `AGW/V1`:
 
@@ -162,18 +162,18 @@ Bajo `AGW/V1`:
 - `POST /AGW/V1/card-reconciliation/{id}/confirm`
 - `GET /AGW/V1/card-reconciliation/{id}`
 
-## 9. Política de migración sin romper nada
+## 9. PolÃ­tica de migraciÃ³n sin romper nada
 
 No mover masivamente lo legacy.
 
 La estrategia recomendada es:
 
-1. dejar `v1/v2/v3` como están para compatibilidad
-2. todo módulo nuevo nace en `AGW/V1`
-3. cuando haga falta reutilizar lógica legacy, encapsularla en servicios o repositorios
+1. dejar `v1/v2/v3` como estÃ¡n para compatibilidad
+2. todo mÃ³dulo nuevo nace en `AGW/V1`
+3. cuando haga falta reutilizar lÃ³gica legacy, encapsularla en servicios o repositorios
 4. evitar seguir metiendo dominios nuevos en `v2`
 
-## 10. Regla práctica para el día a día
+## 10. Regla prÃ¡ctica para el dÃ­a a dÃ­a
 
 ## Si el endpoint ya existe o es una mejora chica
 - tocar `v2` o `v3`
@@ -181,28 +181,28 @@ La estrategia recomendada es:
 ## Si es un dominio nuevo de web
 - crear en `AGW/V1`
 
-## Si la lógica se puede reutilizar
+## Si la lÃ³gica se puede reutilizar
 - extraer a `services` o `repositories`
 
 ## Si el cambio es solo para compatibilidad
 - dejarlo dentro del espacio legacy correspondiente
 
-## 11. Ejemplo concreto de decisión
+## 11. Ejemplo concreto de decisiÃ³n
 
-## Caso: conciliación de tarjetas
+## Caso: conciliaciÃ³n de tarjetas
 - no pertenece a ALFA Go
 - es un dominio nuevo
 - es propio de web
 - necesita crecer con parsers, matching y reglas por banco
 
-Conclusión:
+ConclusiÃ³n:
 - debe vivir en `AGW/V1`
-- no conviene seguir desarrollándolo dentro de `v2`
+- no conviene seguir desarrollÃ¡ndolo dentro de `v2`
 
 ## 12. Resumen ejecutivo
 
 La regla de trabajo es esta:
 
 - `v1/v2/v3` = compatibilidad y mantenimiento
-- `AGW/V1` = crecimiento nuevo de Alfa Gestión Web
+- `AGW/V1` = crecimiento nuevo de Alfa GestiÃ³n Web
 - `services/repositories/parsers` = base profesional para crecer sin mezclar responsabilidades

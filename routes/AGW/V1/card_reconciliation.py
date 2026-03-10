@@ -8,6 +8,11 @@ from flask_classful import route
 from functions.responses import set_response
 from routes.v2.master import MasterView
 
+try:
+    from pypdf import PdfReader
+except Exception:
+    PdfReader = None
+
 
 class AGWCardReconciliationView(MasterView):
 
@@ -27,10 +32,8 @@ class AGWCardReconciliationView(MasterView):
 
         for item in files:
             filename = (item.filename or '').strip()
-            raw_preview = item.read(350000) or b''
-            item.stream.seek(0)
-            preview_text = raw_preview.decode('latin-1', errors='ignore')
-            combined_text = f'{filename}\n{preview_text}'
+            extracted_text = self._extract_pdf_text(item)
+            combined_text = f'{filename}\n{extracted_text}'
 
             brand = self._detect_brand(combined_text)
             bank = self._detect_bank(combined_text, bank_hint)
@@ -47,7 +50,7 @@ class AGWCardReconciliationView(MasterView):
 
             parsed_files.append({
                 'name': filename,
-                'size': item.content_length or len(raw_preview),
+                'size': item.content_length or 0,
                 'detected_brand': brand,
                 'detected_bank': bank,
                 'period_from': period.get('from', ''),
@@ -71,6 +74,30 @@ class AGWCardReconciliationView(MasterView):
         }
 
         return set_response(result, 200, '')
+
+    def _extract_pdf_text(self, file_item):
+        try:
+            raw_bytes = file_item.read() or b''
+            file_item.stream.seek(0)
+
+            if PdfReader is not None:
+                import io
+
+                reader = PdfReader(io.BytesIO(raw_bytes))
+                text_parts = []
+                for page in reader.pages[:5]:
+                    text_parts.append(page.extract_text() or '')
+                extracted = '\n'.join(text_parts).strip()
+                if extracted:
+                    return extracted
+
+            return raw_bytes[:350000].decode('latin-1', errors='ignore')
+        except Exception:
+            try:
+                file_item.stream.seek(0)
+            except Exception:
+                pass
+            return ''
 
     def _normalize_bank_hint(self, bank_hint: str) -> str:
         mapping = {
@@ -104,9 +131,9 @@ class AGWCardReconciliationView(MasterView):
     def _detect_bank(self, text: str, bank_hint: str) -> str:
         normalized = text.lower()
         patterns = [
-            ('Banco Nacion', [r'banco\s+nacion', r'\bnacion\b']),
-            ('Banco Patagonia', [r'banco\s+patagonia', r'\bpatagonia\b']),
-            ('Prisma', [r'\bprisma\b']),
+            ('Banco Patagonia', [r'banco\s+patagonia', r'patagonia\s+s\.a\.', r'\bpatagonia\b']),
+            ('Banco Nacion', [r'banco\s+nacion', r'banco\s+de\s+la\s+nacion', r'\bnacion\b']),
+            ('Prisma', [r'\bprisma\b', r'payway']),
             ('Fiserv / First Data', [r'\bfiserv\b', r'first\s*data']),
             ('Mercado Pago', [r'mercado\s*pago']),
             ('Banco Santander', [r'\bsantander\b']),
@@ -126,29 +153,56 @@ class AGWCardReconciliationView(MasterView):
         return 'No detectado'
 
     def _detect_period(self, text: str, filename: str):
-        exact_dates = self._extract_exact_dates(text)
-        if exact_dates:
-            first_date = min(exact_dates)
-            last_date = max(exact_dates)
+        emission_date = self._extract_emission_date(text)
+        if emission_date:
+            year = emission_date.year
+            month = emission_date.month
+            last_day = calendar.monthrange(year, month)[1]
             return {
-                'from': first_date.strftime('%Y-%m-%d'),
-                'to': last_date.strftime('%Y-%m-%d'),
-                'label': first_date.strftime('%Y-%m') if first_date.year == last_date.year and first_date.month == last_date.month else f"{first_date.strftime('%Y-%m')} a {last_date.strftime('%Y-%m')}",
+                'from': f'{year}-{month:02d}-01',
+                'to': f'{year}-{month:02d}-{last_day:02d}',
+                'label': f'{year}-{month:02d}',
             }
+
+        filename_date = self._extract_filename_date(filename)
+        if filename_date:
+            year = filename_date.year
+            month = filename_date.month
+            last_day = calendar.monthrange(year, month)[1]
+            return {
+                'from': f'{year}-{month:02d}-01',
+                'to': f'{year}-{month:02d}-{last_day:02d}',
+                'label': f'{year}-{month:02d}',
+            }
+
+        return {}
+
+    def _extract_emission_date(self, text: str):
+        normalized = re.sub(r'\s+', ' ', text)
+        match = re.search(r'fecha\s+de\s+emision\s*:?\s*(\d{2})/(\d{2})/(20\d{2})', normalized, re.IGNORECASE)
+        if match:
+            day, month, year = match.groups()
+            return self._safe_date_parse(year, month, day)
+
+        all_dates = self._extract_exact_dates(text)
+        if all_dates:
+            return max(all_dates)
+
+        return None
+
+    def _extract_filename_date(self, filename: str):
+        exact_date_match = re.search(r'(20\d{2})-(\d{2})-(\d{2})', filename)
+        if exact_date_match:
+            year, month, day = exact_date_match.groups()
+            return self._safe_date_parse(year, month, day)
 
         compact_match = re.search(r'(20\d{2})(\d{1,2})(?!\d)', filename)
         if compact_match:
-            year = int(compact_match.group(1))
-            month = int(compact_match.group(2))
-            if 1 <= month <= 12:
-                last_day = calendar.monthrange(year, month)[1]
-                return {
-                    'from': f'{year}-{month:02d}-01',
-                    'to': f'{year}-{month:02d}-{last_day:02d}',
-                    'label': f'{year}-{month:02d}',
-                }
+            year = compact_match.group(1)
+            month = compact_match.group(2)
+            return self._safe_date_parse(year, month, '01')
 
-        return {}
+        return None
 
     def _extract_exact_dates(self, text: str):
         found = []
