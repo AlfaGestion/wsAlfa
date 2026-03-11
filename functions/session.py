@@ -1,8 +1,9 @@
 from functions.general import get_format_response
 from functions.responses import set_response
-from configs.connection import conn
+from configs.connection import get_connection
 from functions.DataBase import DataBase
 from datetime import datetime
+from functions.Log import Log
 
 
 def get_dbases(account: str) -> list:
@@ -25,7 +26,7 @@ def set_db(account: str, id: int, token: str):
 
     try:
         db_info = get_db_info(id)[0]
-        # print(db_info)
+        Log.create(f"[set_db] db_info id={id} nombre={db_info.get('nombre','')} dbserver={db_info.get('dbserver','')} dbname={db_info.get('dbname','')} dbuser={db_info.get('dbuser','')}", account, 'INFO')
     except Exception as e:
         print(f"Ocurrió un error al obtener los datos de la base")
         db_info = {}
@@ -38,8 +39,12 @@ def set_db(account: str, id: int, token: str):
     """
 
     try:
-        conn.cursor().execute(sql)
-        conn.commit()
+        sql_conn = get_connection(force_new=True)
+        if sql_conn in ('', None):
+            raise RuntimeError('No se pudo obtener la conexi?n principal.')
+        sql_conn.cursor().execute(sql)
+        sql_conn.commit()
+        Log.create(f"[set_db] sessions updated iddb={id} dbserver={db_info.get('dbserver','')} dbname={db_info.get('dbname','')}", account, 'INFO')
 
         # Verifico si tengo que actualizar la base de datos, lo hago cada 1 hora.
         update_database = False
@@ -55,9 +60,11 @@ def set_db(account: str, id: int, token: str):
 
         # Actualizo la base de datos
         if update_database:
+            Log.create(f"[set_db] running update dbserver={db_info.get('dbserver','')} dbname={db_info.get('dbname','')}", account, 'INFO')
             DataBase.update(db_info['dbserver'], db_info['dbname'], db_info['dbuser'], db_info['dbpassword'])
             set_last_update_db(id)
 
+        Log.create(f'[set_db] success iddb={id}', account, 'INFO')
         return True
     except Exception as e:
         print(f"Ocurrió un error al setear la base: ", e)
@@ -72,8 +79,12 @@ def set_last_update_db(database_id: int):
     sql = f"UPDATE bases SET last_update='{now}' WHERE id={database_id}"
 
     try:
-        conn.cursor().execute(sql)
-        conn.commit()
+        sql_conn = get_connection(force_new=True)
+        if sql_conn in ('', None):
+            raise RuntimeError('No se pudo obtener la conexi?n principal.')
+        sql_conn.cursor().execute(sql)
+        sql_conn.commit()
+        Log.create(f"[set_db] sessions updated iddb={id} dbserver={db_info.get('dbserver','')} dbname={db_info.get('dbname','')}", account, 'INFO')
     except Exception as e:
         print(f"Ocurrió un error al actualizar la fecha de ultima actualizacion de la base: ", e)
 

@@ -65,3 +65,4 @@ future==0.18.2
 git+https://github.com/reingart/pyafipws.git
 requests
 openai>=1.0.0
+pypdf>=6.0.0

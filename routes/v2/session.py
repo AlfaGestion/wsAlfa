@@ -3,7 +3,7 @@ from functions.general_customer import get_customer_response
 
 # from configs.customer_connection import get_conn
 
-from functions.session import get_dbases, set_db, get_info_session
+from functions.session import get_dbases, set_db, get_db_info
 from functions.responses import set_response
 from routes.v2.master import MasterView
 from flask_classful import route
@@ -24,7 +24,9 @@ class SessionView(MasterView):
     @route('/setdb/<int:iddb>')
     def setDBAccount(self, iddb: int):
         if set_db(self.code_account, iddb, self.token_global):
-            result = get_info_session(self.token_global)
+            result = get_db_info(iddb)
+            if result:
+                result[0]['company_name'] = result[0].get('nombre', '')
             return set_response(result, 200, "")
 
         return set_response([], 404, "Error. No se pudo ingresar a la base de datos seleccionada")

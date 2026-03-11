@@ -1,5 +1,5 @@
 from flask import jsonify
-from configs.connection import conn
+from configs.connection import get_connection
 import os
 
 
@@ -10,7 +10,10 @@ def get_format_response(sql: str, name_error: str, return_list: bool = False):
     result = []
     error = False
     try:
-        cursor = conn.cursor().execute(sql)
+        sql_conn = get_connection()
+        if sql_conn in ('', None):
+            raise RuntimeError('No se pudo obtener la conexi?n principal.')
+        cursor = sql_conn.cursor().execute(sql)
         columns = [column[0] for column in cursor.description]
         for row in cursor.fetchall():
             result.append(dict(zip(columns, row)))
