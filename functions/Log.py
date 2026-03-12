@@ -11,23 +11,28 @@ class Log:
         return log_dir
 
     @staticmethod
-    def create(data, code_account='', type="WARNING"):
+    def _write(filepath: Path, data, type="WARNING"):
         time = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-        date = datetime.now().strftime('%d-%m-%Y')
         try:
-            filepath = Log._log_dir() / f'LOG_{code_account}_{date}.log'
             with filepath.open('a', encoding='utf-8') as file:
                 file.write(f'\n{type}: {time}\n{data}')
         except Exception:
             pass
 
     @staticmethod
-    def createIngreso(data, code_account='', type="WARNING"):
-        time = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+    def create(data, code_account='', type="WARNING"):
         date = datetime.now().strftime('%d-%m-%Y')
-        try:
-            filepath = Log._log_dir() / f'LOG_Ingreso{code_account}_{date}.log'
-            with filepath.open('a', encoding='utf-8') as file:
-                file.write(f'\n{type}: {time}\n{data}')
-        except Exception:
-            pass
+        filepath = Log._log_dir() / f'LOG_{code_account}_{date}.log'
+        Log._write(filepath, data, type)
+
+    @staticmethod
+    def createIngreso(data, code_account='', type="WARNING"):
+        date = datetime.now().strftime('%d-%m-%Y')
+        filepath = Log._log_dir() / f'LOG_Ingreso{code_account}_{date}.log'
+        Log._write(filepath, data, type)
+
+    @staticmethod
+    def createInventario(data, type="WARNING"):
+        date = datetime.now().strftime('%d-%m-%Y')
+        filepath = Log._log_dir() / f'LOG_{date}_inventario.log'
+        Log._write(filepath, data, type)
