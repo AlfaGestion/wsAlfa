@@ -7,4 +7,5 @@ __pycache__/
 app.log
 .log
 logs/
+log/
 .jsonl
