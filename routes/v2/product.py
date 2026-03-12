@@ -96,7 +96,9 @@ class ProductView(MasterView):
 		SET @until = (@PageNumber * @PageSize)	
 		
         SET @rs = 'SELECT * FROM (
-        SELECT ROW_NUMBER() OVER (ORDER BY a.IDARTICULO) as RowNr,ltrim(a.idarticulo) as idarticulo, CODIGOBARRA as codigobarras, ltrim(isnull(descripcion,''''))  as descripcion, isnull(ltrim(IDRUBRO),'''') as idrubro,isnull(IdFamilia ,'''') as idfamilia,
+        SELECT ROW_NUMBER() OVER (ORDER BY a.IDARTICULO) as RowNr,ltrim(a.idarticulo) as idarticulo, CODIGOBARRA as codigobarras, 
+        CODIGOBARRA1, CODIGOBARRA2, CODIGOBARRA3, CODIGOBARRA4, CodigoBarraDun,
+        ltrim(isnull(descripcion,''''))  as descripcion, isnull(ltrim(IDRUBRO),'''') as idrubro,isnull(IdFamilia ,'''') as idfamilia,
         convert(varchar,convert(decimal(15,2),isnull(IMPUESTOS,0))) as imp_internos,
         convert(varchar,convert(decimal(15,2),isnull(tasaiva,0))) as iva,
         convert(varchar,convert(decimal(15,2),isnull(EXENTO,0))) as exento, 
@@ -118,9 +120,9 @@ class ProductView(MasterView):
         
         EXEC(@rs)
         """
-        # print(sql)
+        
         result, error = get_customer_response(
-            sql, f" al obtener los clientes en pagina {page}", True, self.token_global)
+            sql, f" al obtener los articulos en pagina {page}", True, self.token_global)
 
         response = set_response(
             result, 200 if not error else 404, "" if not error else result[0]['message'])
