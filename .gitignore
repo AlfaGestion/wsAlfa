@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 *.pyo
-app.log.env.*
+app.log
 .log
 logs/
+.jsonl

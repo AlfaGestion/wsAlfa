@@ -92,3 +92,25 @@
 {"ts": 1772894000, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC NAVADA 07-03 2.jpeg", "ok": 1, "error": "", "duracion_ms": 31619, "sql_error": ""}
 {"ts": 1772895841, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC NEVADA 07-03 3.jpeg", "ok": 1, "error": "", "duracion_ms": 35552, "sql_error": ""}
 {"ts": 1772899666, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. HUMUS 7-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 12654, "sql_error": ""}
+{"ts": 1773155495, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT.1 GAMMA 10-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 17519, "sql_error": ""}
+{"ts": 1773155893, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. 2 GAMMA 10-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 53180, "sql_error": ""}
+{"ts": 1773156397, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. TORNERO 10-3-26.jpeg", "ok": 1, "error": "", "duracion_ms": 24295, "sql_error": ""}
+{"ts": 1773158137, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. MARIN 9-3-26.jpeg", "ok": 1, "error": "", "duracion_ms": 25304, "sql_error": ""}
+{"ts": 1773159260, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NOTA DE CREDITO CASPANI 10-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 14165, "sql_error": ""}
+{"ts": 1773246952, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "CAGNOLI 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 44687, "sql_error": ""}
+{"ts": 1773248044, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "VACALIN  11-03.PDF", "ok": 1, "error": "", "duracion_ms": 27218, "sql_error": ""}
+{"ts": 1773250360, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC DSTRIBUIDORA 2000 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 21484, "sql_error": ""}
+{"ts": 1773250455, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC DSTRIBUIDORA 2000 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 17602, "sql_error": ""}
+{"ts": 1773251139, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC ADL 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 40758, "sql_error": ""}
+{"ts": 1773251222, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC ADL 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 16257, "sql_error": ""}
+{"ts": 1773251309, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC DIETETICA CIENTIFICA 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 9342, "sql_error": ""}
+{"ts": 1773319803, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC FILOKRI 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 39595, "sql_error": ""}
+{"ts": 1773323522, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC MAEANATHA 12-03.jpeg", "ok": 1, "error": "", "duracion_ms": 15569, "sql_error": ""}
+{"ts": 1773329764, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-202510.pdf", "ok": 1, "error": "", "duracion_ms": 8617, "sql_error": ""}
+{"ts": 1773332090, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 13207, "sql_error": ""}
+{"ts": 1773334953, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 19366, "sql_error": ""}
+{"ts": 1773335063, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 16006, "sql_error": ""}
+{"ts": 1773336213, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 9172, "sql_error": ""}
+{"ts": 1773337081, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 11693, "sql_error": ""}
+{"ts": 1773337685, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 9993, "sql_error": ""}
+{"ts": 1773338036, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 22298, "sql_error": ""}
