@@ -1,15 +1,11 @@
 from datetime import datetime
 from flask import request
 from functions.general_customer import exec_customer_sql
-from functions.Log import Log
 from functions.responses import set_response
 from .master import MasterView
 
 
 class InventarioView(MasterView):
-
-    def _log_inventario(self, data, type="WARNING"):
-        Log.createInventario(data, type)
 
     def post(self):
         data = request.get_json() or {}
@@ -35,21 +31,18 @@ class InventarioView(MasterView):
         SELECT @pRes as pRes, @pMensaje as pMensaje, @pIdInventario pIdInventario
         """
 
-        result = []
         try:
             result, error = exec_customer_sql(sql_header, " al grabar el inventario", self.token_global, True)
         except Exception as e:
             error = True
-            self._log_inventario(f"Error al grabar cabecera de inventario: {e}\nSENTENCIA : {sql_header}", "ERROR")
 
         if error:
-            message = str(result[0]['message']) if result else "Error al grabar el inventario"
-            self._log_inventario(f"{message}\nSENTENCIA : {sql_header}", "ERROR")
+            self.log(str(result[0]['message']) + "\nSENTENCIA : " + sql_header)
             return set_response(None, 404, "Ocurrio un error al grabar el inventario.")
 
         result_code = result[0][0]
         if result_code != 11:
-            self._log_inventario(f"{str(result[0][1])}\nSENTENCIA : {sql_header}", "ERROR")
+            self.log(str(result[0][1]) + "\nSENTENCIA : " + sql_header)
             return set_response(None, 404, result[0][1])
 
         inventario_id = result[0][2]
@@ -63,12 +56,7 @@ class InventarioView(MasterView):
                 return float(value)
             except Exception:
                 return 0
-
-        self._log_inventario(
-            f"Cabecera de inventario creada correctamente. idInventario={inventario_id} items={len(items)} usuario={usuario} deposito={id_deposito}",
-            "INFO"
-        )
-
+        print(items)
         for item in items:
             id_articulo = item.get('idarticulo', '') or item.get('product', '')
             if id_articulo is None:
@@ -91,23 +79,13 @@ class InventarioView(MasterView):
                 ({inventario_id}, '{id_articulo}', '{id_unidad}', 0, {conteo1}, 0, 0, {costo})
             """
 
-            detail_result = []
             try:
-                detail_result, error = exec_customer_sql(sql_detail, " al grabar el detalle del inventario", self.token_global, False)
+                _, error = exec_customer_sql(sql_detail, " al grabar el detalle del inventario", self.token_global, False)
             except Exception as e:
                 error = True
-                self._log_inventario(
-                    f"Error al grabar detalle de inventario. articulo={id_articulo} unidad={id_unidad} conteo1={conteo1} costo={costo} error={e}\nSENTENCIA : {sql_detail}",
-                    "ERROR"
-                )
 
             if error:
-                message = str(detail_result[0]['message']) if detail_result else "Error al grabar el detalle del inventario"
-                self._log_inventario(
-                    f"{message}\narticulo={id_articulo} unidad={id_unidad} conteo1={conteo1} costo={costo}\nSENTENCIA : {sql_detail}",
-                    "ERROR"
-                )
+                self.log(str(result[0]['message']) + "\nSENTENCIA : " + sql_detail)
                 return set_response(None, 404, "Ocurrio un error al grabar el detalle del inventario.")
 
-        self._log_inventario(f"Inventario grabado correctamente. idInventario={inventario_id}", "INFO")
         return set_response([{ 'idInventario': inventario_id }], 200, "Inventario grabado correctamente.")
