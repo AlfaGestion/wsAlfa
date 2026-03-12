@@ -43,12 +43,12 @@ class AccountView(MasterView):
 
 
     def get_expired_invoice(self, code):
-        # Verifico si el sistema está configurado para facturar con vencidos
+        # Verifico si el sistema estÃ¡ configurado para facturar con vencidos
         sql = f"""
         SELECT valor,clave FROM TA_CONFIGURACION WHERE CLAVE='NoFacturaVencidos'
         """
         response = self.get_response(
-            sql, f"Ocurrió un error al obtener las configuración del sistema", True, False)
+            sql, f"OcurriÃ³ un error al obtener las configuraciÃ³n del sistema", True, False)
 
         can_charge_invoice = False
         if response:
@@ -57,7 +57,7 @@ class AccountView(MasterView):
         if not can_charge_invoice:
             return True, []
 
-        # Si el sistema está configurado para facturar con vencidos, verifico si el cliente puede facturar vencidos y si tiene facturas vencidas
+        # Si el sistema estÃ¡ configurado para facturar con vencidos, verifico si el cliente puede facturar vencidos y si tiene facturas vencidas
         sql = f"""
         IF NOT Exists(Select * from ma_clavepin where Fecha is null and Cuenta = '{code}' and motivo = '10')
         SELECT tc,sucursal,numero,letra,convert(varchar(10),fecha,103) as fecha,convert(varchar(10),vencimiento,103) as vencimiento,convert(varchar,convert(decimal(15,2),importe)) as importe  FROM VE_CPTES_IMPAGOS 
@@ -67,7 +67,7 @@ class AccountView(MasterView):
         """
 
         response = self.get_response(
-            sql, f"Ocurrió un error al obtener las facturas vencidas", True, False)
+            sql, f"OcurriÃ³ un error al obtener las facturas vencidas", True, False)
 
         if response:
             if response[0].get('tc', '') == '':
@@ -85,6 +85,23 @@ class AccountView(MasterView):
         accounts = Account.get_accounts(self.token_global,type_account,id_seller)
 
         return set_response(accounts,200)
+
+    @route("/card-payment-accounts")
+    def get_card_payment_accounts(self):
+        """Retorna las cuentas contables configuradas como tarjetas"""
+
+        sql = """
+        SELECT
+            LTRIM(RTRIM(CODIGO)) AS codigo,
+            LTRIM(RTRIM(DESCRIPCION)) AS descripcion,
+            ISNULL(LTRIM(RTRIM(MedioDePago)), '') AS medio_pago
+        FROM MA_CUENTAS
+        WHERE ISNULL(MedioDePago, '') = 'TJ'
+        ORDER BY DESCRIPCION
+        """
+
+        accounts = self.get_response(sql, " las cuentas contables de tarjetas", True, False)
+        return set_response(accounts, 200)
 
     @route("/print/<string:cpte>/<string:tc>/<string:account>", methods=["POST"])
     def print_invoice(self, cpte: str, tc: str, account: str = ''):

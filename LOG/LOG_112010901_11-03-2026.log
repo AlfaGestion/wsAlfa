@@ -1,0 +1,15 @@
+
+INFO: 11-03-2026 06:04:24
+[set_db] db_info id=3241 nombre=PRUEBAS OLIVA dbserver=tcp:10.9.0.35,1433 dbname=PRUEBAS02122025 dbuser=PRUEBAS02122025
+INFO: 11-03-2026 06:04:24
+[set_db] sessions updated iddb=3241 dbserver=tcp:10.9.0.35,1433 dbname=PRUEBAS02122025
+INFO: 11-03-2026 06:04:24
+[set_db] running update dbserver=tcp:10.9.0.35,1433 dbname=PRUEBAS02122025
+INFO: 11-03-2026 06:04:24
+[set_db] success iddb=3241
+INFO: 11-03-2026 06:25:25
+[set_db] db_info id=3241 nombre=PRUEBAS OLIVA dbserver=tcp:10.9.0.35,1433 dbname=PRUEBAS02122025 dbuser=PRUEBAS02122025
+INFO: 11-03-2026 06:25:25
+[set_db] sessions updated iddb=3241 dbserver=tcp:10.9.0.35,1433 dbname=PRUEBAS02122025
+INFO: 11-03-2026 06:25:25
+[set_db] success iddb=3241

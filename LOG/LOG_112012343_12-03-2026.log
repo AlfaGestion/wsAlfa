@@ -1,0 +1,19 @@
+
+INFO: 12-03-2026 15:11:22
+[set_db] db_info id=2216 nombre=ALFANET dbserver=10.55.0.2\ALFANET dbname=ALFANET dbuser=ALFANET
+INFO: 12-03-2026 15:11:22
+[set_db] sessions updated iddb=2216 dbserver=10.55.0.2\ALFANET dbname=ALFANET
+INFO: 12-03-2026 15:11:22
+[set_db] success iddb=2216
+INFO: 12-03-2026 15:11:24
+[set_db] db_info id=2216 nombre=ALFANET dbserver=10.55.0.2\ALFANET dbname=ALFANET dbuser=ALFANET
+INFO: 12-03-2026 15:11:24
+[set_db] sessions updated iddb=2216 dbserver=10.55.0.2\ALFANET dbname=ALFANET
+INFO: 12-03-2026 15:11:24
+[set_db] success iddb=2216
+INFO: 12-03-2026 15:11:33
+[set_db] db_info id=2216 nombre=ALFANET dbserver=10.55.0.2\ALFANET dbname=ALFANET dbuser=ALFANET
+INFO: 12-03-2026 15:11:34
+[set_db] sessions updated iddb=2216 dbserver=10.55.0.2\ALFANET dbname=ALFANET
+INFO: 12-03-2026 15:11:34
+[set_db] success iddb=2216
