@@ -40,6 +40,7 @@ class ViewSeller(MasterView):
         DECLARE @BLOQUEA_NP_STK_COMPROMETIDO_NEGATIVO NVARCHAR(2)
 
         DECLARE @Ocultar_art NVARCHAR(2)
+        DECLARE @Ocultar_tareas NVARCHAR(2)
 
         SET @PIDE_BULTOS_APP = (SELECT ISNULL(VALOR,'0') FROM TA_CONFIGURACION WHERE CLAVE = 'PIDEBULTOSAPP')
         IF @PIDE_BULTOS_APP IS NULL OR @PIDE_BULTOS_APP = 'NO' SET @PIDE_BULTOS_APP = '0'
@@ -99,6 +100,8 @@ class ViewSeller(MasterView):
 
         SET @Ocultar_art = (SELECT ISNULL(VALOR,'') FROM TA_CONFIGURACION WHERE CLAVE = 'VDOR_WEB_OCULTARART_{id_seller}')
 
+        SET @Ocultar_tareas = (SELECT ISNULL(VALOR,'') FROM TA_CONFIGURACION WHERE CLAVE = 'VDOR_WEB_OCULTARTareas_{id_seller}')
+
         SELECT 'MODIFICA_CLASE_PRECIO' AS [key],@MODIFICA_CLASE_PRECIO as value
         UNION
         SELECT 'SOLO_CLIENTES_VENDEDOR' AS [key],@VISUALIZA_CLIENTES as value
@@ -131,8 +134,10 @@ class ViewSeller(MasterView):
         UNION
         SELECT 'PIDE_PRECIO' as [key], @PIDE_PRECIO_APP as value
         UNION
-        SELECT 'VDOR_WEB_OCULTARART' as [key], @Ocultar_art as value        
-        
+        SELECT 'VDOR_WEB_OCULTARART' as [key], @Ocultar_art as value     
+        UNION   
+        SELECT 'VDOR_WEB_OCULTARTareas' as [key], @Ocultar_tareas as value        
+
         """
 
         if id_seller:

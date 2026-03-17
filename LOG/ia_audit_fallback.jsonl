@@ -1,0 +1,117 @@
+{"ts": 1772038696, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "OK LiquidacionMensual-074-28775041-VisaCr_dito-20261.pdf", "ok": 1, "error": "", "duracion_ms": 49340, "sql_error": ""}
+{"ts": 1772051274, "idcliente": null, "opcion": "FACTURAS", "archivo_nombre": "f1.pdf", "ok": 1, "error": "", "duracion_ms": 51316, "sql_error": ""}
+{"ts": 1772058785, "idcliente": "112010841", "opcion": "FACTURAS", "archivo_nombre": "ballesta 09 02.pdf", "ok": 1, "error": "", "duracion_ms": 40450, "sql_error": ""}
+{"ts": 1772106055, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC BOLSA TODO 25-02.pdf", "ok": 1, "error": "", "duracion_ms": 47672, "sql_error": ""}
+{"ts": 1772107277, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC ROSENTAL 25-02.pdf", "ok": 1, "error": "", "duracion_ms": 29831, "sql_error": ""}
+{"ts": 1772107797, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC DON FELIPE .pdf", "ok": 1, "error": "", "duracion_ms": 27984, "sql_error": ""}
+{"ts": 1772115616, "idcliente": "112010001", "opcion": "LIQUIDACION", "archivo_nombre": "OK comprobante-MEN-COM00483293530342632026-01-31 MASTERCARD.pdf", "ok": 1, "error": "", "duracion_ms": 16539, "sql_error": ""}
+{"ts": 1772115873, "idcliente": "112010001", "opcion": "LIQUIDACION", "archivo_nombre": "ok LiquidacionMensual-074-28775041-VisaD_bito.pdf", "ok": 1, "error": "", "duracion_ms": 54652, "sql_error": ""}
+{"ts": 1772201748, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 27-02 1.jpeg", "ok": 1, "error": "", "duracion_ms": 31438, "sql_error": ""}
+{"ts": 1772202204, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 27-02 2.jpeg", "ok": 1, "error": "", "duracion_ms": 19847, "sql_error": ""}
+{"ts": 1772202399, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 27-02 3.jpeg", "ok": 1, "error": "", "duracion_ms": 25289, "sql_error": ""}
+{"ts": 1772202709, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-02 1.jpeg", "ok": 1, "error": "", "duracion_ms": 50776, "sql_error": ""}
+{"ts": 1772204475, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-02 2.jpeg", "ok": 1, "error": "", "duracion_ms": 50430, "sql_error": ""}
+{"ts": 1772204910, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-02 3.jpeg", "ok": 1, "error": "", "duracion_ms": 23866, "sql_error": ""}
+{"ts": 1772205782, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GILIO 27-02.jpeg", "ok": 1, "error": "", "duracion_ms": 37814, "sql_error": ""}
+{"ts": 1772206569, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 27-02 4.jpeg", "ok": 1, "error": "", "duracion_ms": 33873, "sql_error": ""}
+{"ts": 1772207523, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 27-02 5.jpeg", "ok": 1, "error": "", "duracion_ms": 22714, "sql_error": ""}
+{"ts": 1772207822, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 27-02 6.jpeg", "ok": 1, "error": "", "duracion_ms": 43354, "sql_error": ""}
+{"ts": 1772208899, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC EL PAR 27-02.jpeg", "ok": 1, "error": "", "duracion_ms": 45278, "sql_error": ""}
+{"ts": 1772209802, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC TRANSCONT (FLETE VACALIN) 27-02.jpeg", "ok": 1, "error": "", "duracion_ms": 37759, "sql_error": ""}
+{"ts": 1772213798, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC MARIN 27-02.jpeg", "ok": 1, "error": "", "duracion_ms": 26565, "sql_error": ""}
+{"ts": 1772214819, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC BILIA JOEL MATIAS 27-02.jpeg", "ok": 1, "error": "", "duracion_ms": 22851, "sql_error": ""}
+{"ts": 1772215003, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL BIERZO 27-02.jpeg", "ok": 1, "error": "", "duracion_ms": 36076, "sql_error": ""}
+{"ts": 1772216309, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC FRIOLIM 27-02.jpeg", "ok": 1, "error": "", "duracion_ms": 23448, "sql_error": ""}
+{"ts": 1772216584, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC TRANSCONT (FLETE FRIOLIM) 27-02.jpeg", "ok": 1, "error": "", "duracion_ms": 21770, "sql_error": ""}
+{"ts": 1772285552, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC NEVADA 28-02 1.jpeg", "ok": 1, "error": "", "duracion_ms": 25778, "sql_error": ""}
+{"ts": 1772288045, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC NEVADA 28-02 2.jpeg", "ok": 1, "error": "", "duracion_ms": 21956, "sql_error": ""}
+{"ts": 1772288428, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC NEVADA 28-02 3.jpeg", "ok": 1, "error": "", "duracion_ms": 41904, "sql_error": ""}
+{"ts": 1772290214, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DIST. 2000 28-02 1.jpeg", "ok": 1, "error": "", "duracion_ms": 24426, "sql_error": ""}
+{"ts": 1772290501, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DIST. 200028-02 2.jpeg", "ok": 1, "error": "", "duracion_ms": 31936, "sql_error": ""}
+{"ts": 1772290610, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DIST. 200028-02 2.jpeg", "ok": 1, "error": "", "duracion_ms": 33094, "sql_error": ""}
+{"ts": 1772290627, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DIST. 2000 28-02 3.jpeg", "ok": 1, "error": "", "duracion_ms": 16494, "sql_error": ""}
+{"ts": 1772291619, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DIST. 2000 28-02 1.jpeg", "ok": 1, "error": "", "duracion_ms": 23928, "sql_error": ""}
+{"ts": 1772468266, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-MastercardCr_dito-20262.pdf", "ok": 1, "error": "", "duracion_ms": 63258, "sql_error": ""}
+{"ts": 1772469963, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-VisaD_bito-20262.pdf", "ok": 1, "error": "", "duracion_ms": 82295, "sql_error": ""}
+{"ts": 1772471783, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 25440, "sql_error": ""}
+{"ts": 1772472067, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-VisaCr_dito-20262.pdf", "ok": 1, "error": "", "duracion_ms": 72279, "sql_error": ""}
+{"ts": 1772472478, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Amex-20262.pdf", "ok": 1, "error": "", "duracion_ms": 14626, "sql_error": ""}
+{"ts": 1772472791, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-MastercardDebit-20262.pdf", "ok": 1, "error": "", "duracion_ms": 44657, "sql_error": ""}
+{"ts": 1772473714, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "comprobante-MEN-COM00483293200342632026-02-28 VISA.pdf", "ok": 1, "error": "", "duracion_ms": 21867, "sql_error": ""}
+{"ts": 1772474051, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "comprobante-MEN-COM00483293380342632026-02-28 CABAL.pdf", "ok": 1, "error": "", "duracion_ms": 20640, "sql_error": ""}
+{"ts": 1772474174, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "comprobante-MEN-COM00483293530342632026-02-28 MASTERCARD.pdf", "ok": 1, "error": "", "duracion_ms": 39235, "sql_error": ""}
+{"ts": 1772474320, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "comprobante-MEN-COM00716805320342632026-02-28 AMEX.pdf", "ok": 1, "error": "", "duracion_ms": 17002, "sql_error": ""}
+{"ts": 1772541312, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC VAES 03-03.jpeg", "ok": 1, "error": "", "duracion_ms": 52445, "sql_error": ""}
+{"ts": 1772541609, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC ROSENTAL 03-03.jpeg", "ok": 1, "error": "", "duracion_ms": 29142, "sql_error": ""}
+{"ts": 1772546833, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC IMAZ  28-02.jpeg", "ok": 1, "error": "", "duracion_ms": 25837, "sql_error": ""}
+{"ts": 1772632167, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC ALIMENTO DEL LAGO 4-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 40820, "sql_error": ""}
+{"ts": 1772632370, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NOTA DE CREDIDO ROSENTAL 4-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 24979, "sql_error": ""}
+{"ts": 1772641173, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CAGNOLI 04-03.jpeg", "ok": 1, "error": "", "duracion_ms": 70823, "sql_error": ""}
+{"ts": 1772642839, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "bna febrero 2026.xls", "ok": 0, "error": "Error code: 400 - {'error': {'message': \"Invalid 'max_output_tokens': integer below minimum value. Expected a value >= 16, but got 8 instead.\", 'type': 'invalid_request_error', 'param': 'max_output_tokens', 'code': 'integer_below_min_value'}}", "duracion_ms": 12373, "sql_error": ""}
+{"ts": 1772643494, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12924, "sql_error": ""}
+{"ts": 1772648328, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 13099, "sql_error": ""}
+{"ts": 1772648675, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 13422, "sql_error": ""}
+{"ts": 1772649965, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 13024, "sql_error": ""}
+{"ts": 1772650427, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "bna febrero 2026.xls", "ok": 1, "error": "", "duracion_ms": 13149, "sql_error": ""}
+{"ts": 1772652260, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12229, "sql_error": ""}
+{"ts": 1772658396, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "bna febrero 2026.xls", "ok": 1, "error": "", "duracion_ms": 13201, "sql_error": ""}
+{"ts": 1772659376, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "bna febrero 2026.xls", "ok": 1, "error": "", "duracion_ms": 13682, "sql_error": ""}
+{"ts": 1772660119, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 13023, "sql_error": ""}
+{"ts": 1772660155, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12142, "sql_error": ""}
+{"ts": 1772660191, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12212, "sql_error": ""}
+{"ts": 1772660244, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12633, "sql_error": ""}
+{"ts": 1772660365, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12313, "sql_error": ""}
+{"ts": 1772660892, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "bna febrero 2026.xls", "ok": 1, "error": "", "duracion_ms": 11634, "sql_error": ""}
+{"ts": 1772661145, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 13083, "sql_error": ""}
+{"ts": 1772661699, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 11839, "sql_error": ""}
+{"ts": 1772663835, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12618, "sql_error": ""}
+{"ts": 1772664364, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "bna febrero 2026.xls", "ok": 1, "error": "", "duracion_ms": 12431, "sql_error": ""}
+{"ts": 1772688159, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "bna febrero 2026.xls", "ok": 1, "error": "", "duracion_ms": 14314, "sql_error": ""}
+{"ts": 1772690670, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12689, "sql_error": ""}
+{"ts": 1772690913, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 13001, "sql_error": ""}
+{"ts": 1772690950, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12449, "sql_error": ""}
+{"ts": 1772691535, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12695, "sql_error": ""}
+{"ts": 1772691678, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12114, "sql_error": ""}
+{"ts": 1772700482, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 13236, "sql_error": ""}
+{"ts": 1772701456, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12554, "sql_error": ""}
+{"ts": 1772704977, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "MovimientosCuenta0 - BPAT 02-2026.XLS", "ok": 1, "error": "", "duracion_ms": 12694, "sql_error": ""}
+{"ts": 1772801363, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC PRIGIONE 06-03.jpeg", "ok": 1, "error": "", "duracion_ms": 41911, "sql_error": ""}
+{"ts": 1772801990, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 06-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 15183, "sql_error": ""}
+{"ts": 1772802219, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPAN 06-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 55394, "sql_error": ""}
+{"ts": 1772803605, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC ADL 06-03 1.jpeg", "ok": 1, "error": "", "duracion_ms": 64333, "sql_error": ""}
+{"ts": 1772805086, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC LA AGRICOLA 06-03.jpeg", "ok": 1, "error": "", "duracion_ms": 27552, "sql_error": ""}
+{"ts": 1772808868, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 06-03 1.jpeg", "ok": 1, "error": "", "duracion_ms": 35092, "sql_error": ""}
+{"ts": 1772809612, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 06-03 2.jpeg", "ok": 1, "error": "", "duracion_ms": 13449, "sql_error": ""}
+{"ts": 1772809775, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 06-03 3.jpeg", "ok": 1, "error": "", "duracion_ms": 25446, "sql_error": ""}
+{"ts": 1772810771, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 06-03 4.jpeg", "ok": 1, "error": "", "duracion_ms": 21447, "sql_error": ""}
+{"ts": 1772810937, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC EL PAR 06-03 5.jpeg", "ok": 1, "error": "", "duracion_ms": 14509, "sql_error": ""}
+{"ts": 1772810996, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC EL PAR 06-03 5.jpeg", "ok": 1, "error": "", "duracion_ms": 13229, "sql_error": ""}
+{"ts": 1772811190, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC EL PAR 06-03.jpeg", "ok": 1, "error": "", "duracion_ms": 14415, "sql_error": ""}
+{"ts": 1772830842, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GILIO 06-03.jpeg", "ok": 1, "error": "", "duracion_ms": 25716, "sql_error": ""}
+{"ts": 1772893695, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC NEVADA 07-03 1.jpeg", "ok": 1, "error": "", "duracion_ms": 58009, "sql_error": ""}
+{"ts": 1772894000, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC NAVADA 07-03 2.jpeg", "ok": 1, "error": "", "duracion_ms": 31619, "sql_error": ""}
+{"ts": 1772895841, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC NEVADA 07-03 3.jpeg", "ok": 1, "error": "", "duracion_ms": 35552, "sql_error": ""}
+{"ts": 1772899666, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. HUMUS 7-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 12654, "sql_error": ""}
+{"ts": 1773155495, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT.1 GAMMA 10-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 17519, "sql_error": ""}
+{"ts": 1773155893, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. 2 GAMMA 10-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 53180, "sql_error": ""}
+{"ts": 1773156397, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. TORNERO 10-3-26.jpeg", "ok": 1, "error": "", "duracion_ms": 24295, "sql_error": ""}
+{"ts": 1773158137, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. MARIN 9-3-26.jpeg", "ok": 1, "error": "", "duracion_ms": 25304, "sql_error": ""}
+{"ts": 1773159260, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NOTA DE CREDITO CASPANI 10-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 14165, "sql_error": ""}
+{"ts": 1773246952, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "CAGNOLI 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 44687, "sql_error": ""}
+{"ts": 1773248044, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "VACALIN  11-03.PDF", "ok": 1, "error": "", "duracion_ms": 27218, "sql_error": ""}
+{"ts": 1773250360, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC DSTRIBUIDORA 2000 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 21484, "sql_error": ""}
+{"ts": 1773250455, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC DSTRIBUIDORA 2000 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 17602, "sql_error": ""}
+{"ts": 1773251139, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC ADL 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 40758, "sql_error": ""}
+{"ts": 1773251222, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC ADL 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 16257, "sql_error": ""}
+{"ts": 1773251309, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC DIETETICA CIENTIFICA 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 9342, "sql_error": ""}
+{"ts": 1773319803, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC FILOKRI 11-03.jpeg", "ok": 1, "error": "", "duracion_ms": 39595, "sql_error": ""}
+{"ts": 1773323522, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC MAEANATHA 12-03.jpeg", "ok": 1, "error": "", "duracion_ms": 15569, "sql_error": ""}
+{"ts": 1773329764, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-202510.pdf", "ok": 1, "error": "", "duracion_ms": 8617, "sql_error": ""}
+{"ts": 1773332090, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 13207, "sql_error": ""}
+{"ts": 1773334953, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 19366, "sql_error": ""}
+{"ts": 1773335063, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 16006, "sql_error": ""}
+{"ts": 1773336213, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 9172, "sql_error": ""}
+{"ts": 1773337081, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 11693, "sql_error": ""}
+{"ts": 1773337685, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 9993, "sql_error": ""}
+{"ts": 1773338036, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 22298, "sql_error": ""}
+{"ts": 1773339602, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 6619, "sql_error": ""}
