@@ -32,6 +32,7 @@ class AGWCardReconciliationView(MasterView):
             return set_response([], 404, 'Debe adjuntar al menos un PDF.')
 
         parsed_files = []
+        pdf_movements = []
         period_from_values = []
         period_to_values = []
         detected_brands = []
@@ -45,6 +46,7 @@ class AGWCardReconciliationView(MasterView):
             brand = self._detect_brand(combined_text)
             bank = self._detect_bank(combined_text, bank_hint)
             period = self._detect_period(combined_text, filename)
+            file_movements = self._extract_pdf_movements(extracted_text, filename, brand, bank, period)
 
             if brand != 'No detectada':
                 detected_brands.append(brand)
@@ -63,8 +65,11 @@ class AGWCardReconciliationView(MasterView):
                 'period_from': period.get('from', ''),
                 'period_to': period.get('to', ''),
                 'period_label': period.get('label', ''),
+                'movement_count': len(file_movements),
+                'movements': file_movements,
                 'debug_text_sample': extracted_text[:300],
             })
+            pdf_movements.extend(file_movements)
 
         summary = {
             'pdf_count': len(parsed_files),
@@ -79,6 +84,7 @@ class AGWCardReconciliationView(MasterView):
         result = {
             'files': parsed_files,
             'summary': summary,
+            'pdf_movements': self._deduplicate_pdf_movements(pdf_movements),
         }
 
         return set_response(result, 200, '')
@@ -322,6 +328,178 @@ ORDER BY a.FECHA, a.TC, a.SUCURSAL, a.NUMERO, a.LETRA
             'conciliado_con': str(row.get('conciliado_con') or '').strip(),
         }
 
+    def _extract_pdf_movements(self, extracted_text: str, filename: str, brand: str, bank: str, period: dict):
+        lines = self._prepare_pdf_lines(extracted_text)
+        detected = []
+
+        for index, line in enumerate(lines, start=1):
+            movement = self._parse_pdf_movement_line(line, index, filename, brand, bank, period)
+            if movement:
+                detected.append(movement)
+
+        if detected:
+            return self._deduplicate_pdf_movements(detected)
+
+        fallback = self._extract_summary_pdf_movements(extracted_text, filename, brand, bank, period)
+        return self._deduplicate_pdf_movements(fallback)
+
+    def _prepare_pdf_lines(self, text: str):
+        prepared = []
+        for raw_line in (text or '').splitlines():
+            line = self._compact_spaces(raw_line)
+            if not line or len(line) < 18:
+                continue
+            prepared.append(line)
+        return prepared
+
+    def _parse_pdf_movement_line(self, line: str, index: int, filename: str, brand: str, bank: str, period: dict):
+        lowered = line.lower()
+        if not re.search(r'(\d{2}/\d{2}(?:/\d{2,4})?|\d{4}-\d{2}-\d{2})', line):
+            return None
+        if not re.search(r'\d+[\.,]\d{2}', line):
+            return None
+        if re.search(r'(fecha de emision|entidad pagadora|resumen mensual|pagina\s+\d+|cuit\s*:)', lowered):
+            return None
+
+        amounts = self._extract_amounts(line)
+        if not amounts:
+            return None
+
+        movement_date = self._extract_first_date_iso(line, period) or period.get('to') or period.get('from') or ''
+        amount = amounts[-1]
+        lote_match = re.search(r'\blote\s*:?\s*([A-Z0-9-]+)', line, re.IGNORECASE)
+        terminal_match = re.search(r'(?:terminal|comercio|pdv|pos|n(?:ro|o)?\s*comercio)\s*:?\s*([A-Z0-9-]{3,})', line, re.IGNORECASE)
+        comp_match = re.search(r'(?:liquidacion|cupon|operacion|comprobante|ref(?:erencia)?)\s*:?\s*([A-Z0-9-]{4,})', line, re.IGNORECASE)
+
+        detail = re.sub(r'\s*\$?\s*-?\d{1,3}(?:\.\d{3})*,\d{2}', '', line).strip(' -')
+        if not detail:
+            detail = f'{brand or "Tarjeta"} {bank or "Banco"} movimiento PDF {index}'
+
+        return {
+            'id': f'PDF-{index}',
+            'fecha': movement_date,
+            'comprobante': comp_match.group(1).strip() if comp_match else self._build_pdf_reference(filename, index),
+            'detalle': detail[:180],
+            'importe': amount,
+            'lote': lote_match.group(1).strip() if lote_match else '',
+            'terminal': terminal_match.group(1).strip() if terminal_match else '',
+            'estado_conciliacion': 'pendiente',
+            'origen': bank or 'PDF',
+        }
+
+    def _extract_summary_pdf_movements(self, text: str, filename: str, brand: str, bank: str, period: dict):
+        compact = self._compact_spaces(text)
+        summary_rules = [
+            ('Neto de pagos', [r'neto\s+de\s+pagos?\s*:?\s*([$\-\d\.,]+)']),
+            ('Total presentado', [r'total\s+presentado\s*:?\s*([$\-\d\.,]+)']),
+            ('Arancel', [r'arancel\s*:?\s*([$\-\d\.,]+)']),
+            ('Retencion', [r'retencion\s*:?\s*([$\-\d\.,]+)']),
+            ('Percepcion', [r'percepcion\s*:?\s*([$\-\d\.,]+)']),
+        ]
+
+        detected = []
+        for label, patterns in summary_rules:
+            for pattern in patterns:
+                match = re.search(pattern, compact, re.IGNORECASE)
+                if not match:
+                    continue
+                amount = self._parse_amount(match.group(1))
+                if amount is None:
+                    continue
+                detected.append({
+                    'id': f'SUM-{len(detected) + 1}',
+                    'fecha': period.get('to') or period.get('from') or self._extract_first_date_iso(compact, period) or '',
+                    'comprobante': self._build_pdf_reference(filename, len(detected) + 1),
+                    'detalle': f'{label} {brand or "Tarjeta"} {bank or "Banco"}'.strip(),
+                    'importe': amount,
+                    'lote': '',
+                    'terminal': self._extract_terminal(compact),
+                    'estado_conciliacion': 'pendiente',
+                    'origen': bank or 'PDF',
+                })
+                break
+
+        return detected
+
+    def _extract_amounts(self, text: str):
+        found = []
+        for raw in re.findall(r'(?<!\d)(-?\$?\s*\d{1,3}(?:\.\d{3})*,\d{2}|-?\$?\s*\d+,\d{2})(?!\d)', text or ''):
+            amount = self._parse_amount(raw)
+            if amount is not None:
+                found.append(amount)
+        return found
+
+    def _parse_amount(self, raw_value: str):
+        cleaned = (raw_value or '').strip()
+        if not cleaned:
+            return None
+        cleaned = cleaned.replace('$', '').replace(' ', '')
+        negative = cleaned.startswith('-')
+        cleaned = cleaned.replace('-', '')
+        if ',' in cleaned:
+            cleaned = cleaned.replace('.', '').replace(',', '.')
+        try:
+            value = float(cleaned)
+        except Exception:
+            return None
+        return -value if negative else value
+
+    def _extract_first_date_iso(self, text: str, period: dict = None):
+        match = re.search(r'(\d{2})/(\d{2})/(20\d{2})', text or '')
+        if match:
+            day, month, year = match.groups()
+            parsed = self._safe_date_parse(year, month, day)
+            if parsed:
+                return parsed.strftime('%Y-%m-%d')
+
+        match = re.search(r'(20\d{2})-(\d{2})-(\d{2})', text or '')
+        if match:
+            year, month, day = match.groups()
+            parsed = self._safe_date_parse(year, month, day)
+            if parsed:
+                return parsed.strftime('%Y-%m-%d')
+
+        match = re.search(r'(\d{2})/(\d{2})(?!/)', text or '')
+        if match:
+            day, month = match.groups()
+            year_match = re.search(r'(20\d{2})', text or '')
+            if year_match:
+                parsed = self._safe_date_parse(year_match.group(1), month, day)
+                if parsed:
+                    return parsed.strftime('%Y-%m-%d')
+            if period and period.get('to'):
+                parsed = self._safe_date_parse(period.get('to')[:4], month, day)
+                if parsed:
+                    return parsed.strftime('%Y-%m-%d')
+
+        return ''
+
+    def _extract_terminal(self, text: str):
+        match = re.search(r'(?:n(?:ro|o)?\s*comercio|terminal|pdv|pos)\s*:?\s*([A-Z0-9-]{4,})', text or '', re.IGNORECASE)
+        return match.group(1).strip() if match else ''
+
+    def _build_pdf_reference(self, filename: str, index: int):
+        basename = re.sub(r'\.pdf$', '', filename or '', flags=re.IGNORECASE)
+        basename = re.sub(r'[^A-Za-z0-9]+', '-', basename).strip('-')
+        basename = basename[:24] if basename else 'PDF'
+        return f'{basename}-{index:03d}'
+
+    def _deduplicate_pdf_movements(self, movements):
+        result = []
+        seen = set()
+        for item in movements:
+            key = (
+                str(item.get('fecha') or '').strip(),
+                str(item.get('comprobante') or '').strip(),
+                str(item.get('detalle') or '').strip(),
+                float(item.get('importe') or 0),
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append(item)
+        return result
+
     def _extract_pdf_text(self, file_item):
         try:
             raw_bytes = file_item.read() or b''
@@ -527,3 +705,4 @@ ORDER BY a.FECHA, a.TC, a.SUCURSAL, a.NUMERO, a.LETRA
                 seen.add(current)
                 result.append(current)
         return result
+

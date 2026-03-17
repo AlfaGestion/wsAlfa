@@ -1,0 +1,7 @@
+
+WARNING: 12-03-2026 12:12:57
+Error: 'str' object has no attribute 'cursor'
+SQL: 
+        SELECT ROW_NUMBER() OVER(ORDER BY YEAR(FECHA),MONTH(FECHA)) AS orden,YEAR(FECHA) as ano,MONTH(FECHA) as mes,convert(varchar,convert(decimal(15,2),SUM(IMPORTE))) as importe FROM V_MV_Cpte WHERE (TC='FP' OR TC='FC' OR TC='TK' OR TC='TKFC') 
+        AND ANULADA=0  AND (FECHA BETWEEN '01/09/2025' AND '31/03/2026')  GROUP BY YEAR(FECHA),MONTH(FECHA) ORDER BY YEAR(FECHA),MONTH(FECHA)
+        
