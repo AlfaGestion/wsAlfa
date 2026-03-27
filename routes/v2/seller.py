@@ -38,6 +38,8 @@ class SellerView(MasterView):
         
         DECLARE @BLOQUEA_NP_STK_REAL_NEGATIVO NVARCHAR(2)
         DECLARE @BLOQUEA_NP_STK_COMPROMETIDO_NEGATIVO NVARCHAR(2)
+        DECLARE @DECIMALESEAN NVARCHAR(3)
+        DECLARE @TIPOEAN NVARCHAR(50)
 
         SET @PIDE_BULTOS_APP = (SELECT ISNULL(VALOR,'0') FROM TA_CONFIGURACION WHERE CLAVE = 'PIDEBULTOSAPP')
         IF @PIDE_BULTOS_APP IS NULL OR @PIDE_BULTOS_APP = 'NO' SET @PIDE_BULTOS_APP = '0'
@@ -95,6 +97,11 @@ class SellerView(MasterView):
         SET @TELEFONO = (SELECT ISNULL(VALOR,'.') FROM TA_CONFIGURACION WHERE CLAVE = 'TELEFONO')
         SET @EMAIL = (SELECT ISNULL(VALOR,'') FROM TA_CONFIGURACION WHERE CLAVE = 'EMAIL_DE')
 
+
+        SET @DECIMALESEAN = (SELECT ISNULL(VALOR,'1') FROM TA_CONFIGURACION WHERE CLAVE = 'DECIMALESEAN')
+        SET @TIPOEAN = (SELECT ISNULL(VALOR,'') FROM TA_CONFIGURACION WHERE CLAVE = 'TIPOEAN')
+
+
         SELECT 'MODIFICA_CLASE_PRECIO' AS [key],@MODIFICA_CLASE_PRECIO as value
         UNION
         SELECT 'SOLO_CLIENTES_VENDEDOR' AS [key],@VISUALIZA_CLIENTES as value
@@ -126,9 +133,13 @@ class SellerView(MasterView):
         SELECT 'PIDE_BULTOS' as [key], @PIDE_BULTOS_APP as value
         UNION
         SELECT 'PIDE_PRECIO' as [key], @PIDE_PRECIO_APP as value
+        UNION
+
+        SELECT 'DECIMALESEAN' as [key], @DECIMALESEAN as value
+        UNION
+        SELECT 'TIPOEAN' as [key], @TIPOEAN as value
 
         """
-
 
         if id_seller:
             response = self.get_response(query, f"Ocurrió un error al obtener la configuración del vendedor", True, False)

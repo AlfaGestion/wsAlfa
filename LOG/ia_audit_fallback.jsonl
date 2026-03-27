@@ -115,3 +115,109 @@
 {"ts": 1773337685, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 9993, "sql_error": ""}
 {"ts": 1773338036, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 22298, "sql_error": ""}
 {"ts": 1773339602, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 6619, "sql_error": ""}
+{"ts": 1773350177, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 13484, "sql_error": ""}
+{"ts": 1773350280, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 7949, "sql_error": ""}
+{"ts": 1773350404, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 6046, "sql_error": ""}
+{"ts": 1773351189, "idcliente": null, "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262.pdf", "ok": 1, "error": "", "duracion_ms": 19852, "sql_error": ""}
+{"ts": 1773353057, "idcliente": "112010901", "opcion": "LIQUIDACION", "archivo_nombre": "LiquidacionMensual-074-28775041-Maestro-20262 (1).pdf", "ok": 1, "error": "", "duracion_ms": 12707, "sql_error": ""}
+{"ts": 1773404095, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GILIO 13-03.jpeg", "ok": 1, "error": "", "duracion_ms": 26041, "sql_error": ""}
+{"ts": 1773406657, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 13-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 65828, "sql_error": ""}
+{"ts": 1773408040, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 13-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 28069, "sql_error": ""}
+{"ts": 1773409212, "idcliente": "112010760", "opcion": "FACTURAS", "archivo_nombre": "10227.pdf", "ok": 1, "error": "", "duracion_ms": 49484, "sql_error": ""}
+{"ts": 1773409636, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 13-03 1.jpeg", "ok": 1, "error": "", "duracion_ms": 17849, "sql_error": ""}
+{"ts": 1773410334, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 13-03 2.jpeg", "ok": 1, "error": "", "duracion_ms": 11152, "sql_error": ""}
+{"ts": 1773410437, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 13-03 3.jpeg", "ok": 1, "error": "", "duracion_ms": 24593, "sql_error": ""}
+{"ts": 1773410737, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC EL PAR 13-03 4.jpeg", "ok": 1, "error": "", "duracion_ms": 60634, "sql_error": ""}
+{"ts": 1773411282, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC MARANATHA 13-03.jpeg", "ok": 1, "error": "", "duracion_ms": 10553, "sql_error": ""}
+{"ts": 1773411623, "idcliente": "112010760", "opcion": "FACTURAS", "archivo_nombre": "10227.pdf", "ok": 1, "error": "", "duracion_ms": 57752, "sql_error": ""}
+{"ts": 1773413728, "idcliente": "112010760", "opcion": "FACTURAS", "archivo_nombre": "10227.pdf", "ok": 1, "error": "", "duracion_ms": 52069, "sql_error": ""}
+{"ts": 1773419147, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "NC CASPANI 13-03.jpeg", "ok": 1, "error": "", "duracion_ms": 9166, "sql_error": ""}
+{"ts": 1773419318, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 2 13-03.jpeg", "ok": 1, "error": "", "duracion_ms": 27225, "sql_error": ""}
+{"ts": 1773419904, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC RINCON CAPRINO 13-03.jpeg", "ok": 1, "error": "", "duracion_ms": 20759, "sql_error": ""}
+{"ts": 1773432789, "idcliente": "112010901", "opcion": "GASTOS_BANCARIOS", "archivo_nombre": "bna febrero 2026 (2).xls", "ok": 1, "error": "", "duracion_ms": 2232, "sql_error": ""}
+{"ts": 1773433531, "idcliente": "112010760", "opcion": "FACTURAS", "archivo_nombre": "10227.pdf", "ok": 1, "error": "", "duracion_ms": 50458, "sql_error": ""}
+{"ts": 1773499321, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC FORD EDUADO ARIEL 13-03.jpeg", "ok": 1, "error": "", "duracion_ms": 18394, "sql_error": ""}
+{"ts": 1773506925, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 16.51.44.jpeg", "ok": 1, "error": "", "duracion_ms": 20813, "sql_error": ""}
+{"ts": 1773507795, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 16.51.45.jpeg", "ok": 1, "error": "", "duracion_ms": 17307, "sql_error": ""}
+{"ts": 1773507814, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 16.51.44 (2).jpeg", "ok": 1, "error": "", "duracion_ms": 19382, "sql_error": ""}
+{"ts": 1773507839, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 16.51.44 (1).jpeg", "ok": 1, "error": "", "duracion_ms": 24915, "sql_error": ""}
+{"ts": 1773507872, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 16.51.44.jpeg", "ok": 1, "error": "", "duracion_ms": 33010, "sql_error": ""}
+{"ts": 1773510735, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 16.51.45 (1).jpeg", "ok": 1, "error": "", "duracion_ms": 8868, "sql_error": ""}
+{"ts": 1773510746, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 16.51.45 (2).jpeg", "ok": 1, "error": "", "duracion_ms": 10577, "sql_error": ""}
+{"ts": 1773510939, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 16.51.45 (2).jpeg", "ok": 1, "error": "", "duracion_ms": 8736, "sql_error": ""}
+{"ts": 1773521138, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "WhatsApp Image 2026-03-14 at 17.36.38.jpeg", "ok": 1, "error": "", "duracion_ms": 7998, "sql_error": ""}
+{"ts": 1773673033, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "20251114091709_Comprobante-FCVTA-A-3-367766 CASPANI (1).pdf", "ok": 1, "error": "", "duracion_ms": 13806, "sql_error": ""}
+{"ts": 1773675554, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 3538, "sql_error": ""}
+{"ts": 1773675702, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 4969, "sql_error": ""}
+{"ts": 1773675707, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 4981, "sql_error": ""}
+{"ts": 1773681377, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 10407, "sql_error": ""}
+{"ts": 1773681380, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 2841, "sql_error": ""}
+{"ts": 1773681401, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 15952, "sql_error": ""}
+{"ts": 1773681881, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 4416, "sql_error": ""}
+{"ts": 1773681883, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 1982, "sql_error": ""}
+{"ts": 1773682681, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 3224, "sql_error": ""}
+{"ts": 1773682684, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 3174, "sql_error": ""}
+{"ts": 1773682896, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 51030, "sql_error": ""}
+{"ts": 1773683063, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 3883, "sql_error": ""}
+{"ts": 1773683065, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 2065, "sql_error": ""}
+{"ts": 1773683486, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 31511, "sql_error": ""}
+{"ts": 1773683729, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 2505, "sql_error": ""}
+{"ts": 1773683731, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC DISTRIBUIDORA 2000 5-14667 21-11.jpg", "ok": 1, "error": "", "duracion_ms": 2237, "sql_error": ""}
+{"ts": 1773684436, "idcliente": "112010760", "opcion": "FACTURAS", "archivo_nombre": "10227.pdf", "ok": 1, "error": "", "duracion_ms": 34146, "sql_error": ""}
+{"ts": 1774536033, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "edmar prueba.jpg", "ok": 1, "error": "", "duracion_ms": 31127, "sql_error": ""}
+{"ts": 1774537769, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "1-115908.pdf", "ok": 1, "error": "", "duracion_ms": 11393, "sql_error": ""}
+{"ts": 1774537884, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "1-115908.pdf", "ok": 1, "error": "", "duracion_ms": 10666, "sql_error": ""}
+{"ts": 1774538069, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "1-115907.pdf", "ok": 1, "error": "", "duracion_ms": 61002, "sql_error": ""}
+{"ts": 1774538371, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "1-115907.pdf", "ok": 1, "error": "", "duracion_ms": 64826, "sql_error": ""}
+{"ts": 1774538563, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "1-115907.pdf", "ok": 1, "error": "", "duracion_ms": 58342, "sql_error": ""}
+{"ts": 1774539133, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "edmar prueba.jpg", "ok": 1, "error": "", "duracion_ms": 13118, "sql_error": ""}
+{"ts": 1774539217, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "edmar prueba.jpg", "ok": 1, "error": "", "duracion_ms": 12903, "sql_error": ""}
+{"ts": 1774539278, "idcliente": "112010787", "opcion": "FACTURAS", "archivo_nombre": "1-115907.pdf", "ok": 1, "error": "", "duracion_ms": 61020, "sql_error": ""}
+{"ts": 1774553998, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GAMMA 25-03.pdf", "ok": 1, "error": "", "duracion_ms": 7386, "sql_error": ""}
+{"ts": 1774554001, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GAMMA 25-03.pdf", "ok": 1, "error": "", "duracion_ms": 2764, "sql_error": ""}
+{"ts": 1774554028, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GAMMA 25-03.pdf", "ok": 1, "error": "", "duracion_ms": 23799, "sql_error": ""}
+{"ts": 1774555112, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 4831, "sql_error": ""}
+{"ts": 1774555115, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 3248, "sql_error": ""}
+{"ts": 1774555460, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 4957, "sql_error": ""}
+{"ts": 1774555463, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 3304, "sql_error": ""}
+{"ts": 1774555579, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 41085, "sql_error": ""}
+{"ts": 1774565410, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 30031, "sql_error": ""}
+{"ts": 1774565423, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 23141, "sql_error": ""}
+{"ts": 1774565492, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 63047, "sql_error": ""}
+{"ts": 1774618662, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 10331, "sql_error": ""}
+{"ts": 1774618664, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 2614, "sql_error": ""}
+{"ts": 1774618706, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 36368, "sql_error": ""}
+{"ts": 1774618764, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 46949, "sql_error": ""}
+{"ts": 1774618794, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 29866, "sql_error": ""}
+{"ts": 1774618814, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 20662, "sql_error": ""}
+{"ts": 1774619692, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC ADL 27-03.jpeg", "ok": 1, "error": "", "duracion_ms": 3864, "sql_error": ""}
+{"ts": 1774619694, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC ADL 27-03.jpeg", "ok": 1, "error": "", "duracion_ms": 1955, "sql_error": ""}
+{"ts": 1774619751, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC ADL 27-03.jpeg", "ok": 1, "error": "", "duracion_ms": 52733, "sql_error": ""}
+{"ts": 1774620314, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GILIO 27-03.jpeg", "ok": 1, "error": "", "duracion_ms": 3439, "sql_error": ""}
+{"ts": 1774620318, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GILIO 27-03.jpeg", "ok": 1, "error": "", "duracion_ms": 3976, "sql_error": ""}
+{"ts": 1774620374, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GILIO 27-03.jpeg", "ok": 1, "error": "", "duracion_ms": 50860, "sql_error": ""}
+{"ts": 1774620409, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC GILIO 27-03.jpeg", "ok": 1, "error": "", "duracion_ms": 23897, "sql_error": ""}
+{"ts": 1774622423, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 16549, "sql_error": ""}
+{"ts": 1774622424, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 3238, "sql_error": ""}
+{"ts": 1774622575, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. WERDENER 25-3-26.PDF", "ok": 1, "error": "", "duracion_ms": 37240, "sql_error": ""}
+{"ts": 1774623897, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 3879, "sql_error": ""}
+{"ts": 1774623900, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 3269, "sql_error": ""}
+{"ts": 1774623939, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 1.pdf", "ok": 1, "error": "", "duracion_ms": 34422, "sql_error": ""}
+{"ts": 1774624395, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 2648, "sql_error": ""}
+{"ts": 1774624422, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 52053, "sql_error": ""}
+{"ts": 1774624454, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 54599, "sql_error": ""}
+{"ts": 1774624495, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 30107, "sql_error": ""}
+{"ts": 1774625118, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 43629, "sql_error": ""}
+{"ts": 1774626649, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 30171, "sql_error": ""}
+{"ts": 1774627115, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. VALLE HERMOSO 26-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 2502, "sql_error": ""}
+{"ts": 1774627116, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. VALLE HERMOSO 26-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 1517, "sql_error": ""}
+{"ts": 1774627215, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. VALLE HERMOSO 26-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 17138, "sql_error": ""}
+{"ts": 1774627253, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FACT. VALLE HERMOSO 26-3-26.pdf", "ok": 1, "error": "", "duracion_ms": 38647, "sql_error": ""}
+{"ts": 1774628818, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 3128, "sql_error": ""}
+{"ts": 1774628821, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 3692, "sql_error": ""}
+{"ts": 1774628923, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 3116, "sql_error": ""}
+{"ts": 1774628926, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 3115, "sql_error": ""}
+{"ts": 1774628969, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 38527, "sql_error": ""}
+{"ts": 1774629112, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 39484, "sql_error": ""}
+{"ts": 1774629401, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 42514, "sql_error": ""}
+{"ts": 1774629436, "idcliente": "112010901", "opcion": "FACTURAS", "archivo_nombre": "FAC CASPANI 27-03 2.pdf", "ok": 1, "error": "", "duracion_ms": 34580, "sql_error": ""}
