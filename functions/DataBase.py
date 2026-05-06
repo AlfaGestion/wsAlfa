@@ -2,6 +2,7 @@ from datetime import datetime
 from configs.connection import get_master_connection, conn
 from config import DB_SERVER, SA_PASSWORD, SA_USER, API_ROOT
 import subprocess
+import os
 from functions.Log import Log
 SERVER_DEFAULT = DB_SERVER
 
@@ -71,14 +72,34 @@ class DataBase:
 
     @staticmethod
     def update(server, dbname, dbuser, dbpassword):
-        now = datetime.now()
-        now = now.strftime("%m%d%Y")
-
         try:
-            server_name_log = server.replace("-", "_").replace("\\", "@").replace("/", "@")
-            log_filename = f"{dbname}_{server_name_log}_{now}_update_database.txt"
+            stores_sql = os.path.join(API_ROOT, "stores", "Stores_alfaweb.sql")
+            command = [
+                "sqlcmd",
+                "-S", server,
+                "-d", dbname,
+                "-i", stores_sql,
+                "-U", dbuser,
+                "-P", dbpassword,
+            ]
 
-            sql = f"sqlcmd -S {server} -d {dbname} -i {API_ROOT}stores\\Stores_alfaweb.sql -P {dbuser} -U {dbpassword} -o {API_ROOT}logs\\{log_filename}"
-            p = subprocess.run(sql)
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                shell=False,
+            )
+
+            if result.returncode != 0:
+                Log.create(
+                    (
+                        f"ERROR UPDATE DATABASE: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}\n"
+                        f"BASE: {dbname}\n"
+                        f"SERVER: {server}\n"
+                        f"DETALLE ERROR: {(result.stderr or result.stdout or 'sqlcmd devolvio un error').strip()}"
+                    ),
+                    "",
+                    "ERROR",
+                )
         except Exception as e:
             Log.create(f"{e}")

@@ -53,7 +53,7 @@ class MasterView(FlaskView):
             self.token_global = token
 
     def log(self, data, type="WARNING"):
-        Log.create(data, self.code_account, type)
+        Log.create(data, self.code_account, type, token=self.token_global)
 
     def get_response(self, query: str, error_message: str, return_list: bool = False, is_query: bool = False):
         if is_query:
@@ -91,7 +91,7 @@ class MasterView(FlaskView):
                     "status_code": 500
                 })
 
-                self.log(error_message, self.code_account)
+                self.log(error_message, "ERROR")
                 abort(jsonify(result[0]), 500)
             else:
                 return result
@@ -132,7 +132,7 @@ class MasterView(FlaskView):
                     "status_code": 500
                 })
 
-                self.log(error_message, self.code_account)
+                self.log(error_message, "ERROR")
                 abort(jsonify(result[0]), 500)
 
             else:

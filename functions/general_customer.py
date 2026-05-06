@@ -125,7 +125,7 @@ def get_customer_response(sql: str, name_error: str, return_list: bool = False, 
                 "status_code": 500
             })
 
-            Log.create(error_message, code_account)
+            Log.create(error_message, code_account, token=token)
             abort(jsonify(result[0]), 500)
 
             # if return_list:

@@ -1,12 +1,196 @@
+import json
+from datetime import datetime
 
-from routes.v2.master import MasterView
-from flask_classful import route
-from functions.general_customer import get_customer_response
-from functions.responses import set_response
 from flask import request
+from flask_classful import route
+
+from functions.Log import Log
+from functions.general_customer import exec_customer_sql, get_customer_response
+from functions.responses import set_response
+from routes.v2.master import MasterView
 
 
 class ViewSeller(MasterView):
+    def _escape_sql_text(self, value):
+        return str('' if value is None else value).replace("'", "''").strip()
+
+    def _normalize_visit_date(self, raw_value: str):
+        text = str(raw_value or '').strip()
+        if not text:
+            return None
+
+        for fmt in (
+            '%d/%m/%Y',
+            '%d/%m/%Y %H:%M:%S',
+            '%Y-%m-%d',
+            '%Y-%m-%d %H:%M:%S',
+            '%Y-%m-%dT%H:%M:%S',
+        ):
+            try:
+                return datetime.strptime(text, fmt).strftime('%d/%m/%Y')
+            except ValueError:
+                continue
+
+        return None
+
+    def _format_log_value(self, value):
+        try:
+            return json.dumps(value, ensure_ascii=False, default=str, indent=2)
+        except Exception:
+            return repr(value)
+
+    def _log_visit_send(
+        self,
+        index: int,
+        visit,
+        sql: str,
+        message: str,
+        type: str = "ERROR",
+        stage: str = "",
+        result=None,
+        exception: Exception | None = None,
+    ):
+        id_cliente = self.code_account
+        account = ""
+        seller = ""
+        raw_date = ""
+        visited = ""
+        if isinstance(visit, dict):
+            account = visit.get("account", "")
+            seller = visit.get("seller", "")
+            raw_date = visit.get("date", "")
+            visited = visit.get("visited", "")
+
+        lines = [
+            f"FECHA: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}",
+            f"TIPO_ENVIO: VISITAS",
+            f"ETAPA: {stage or type}",
+            f"PATH: {request.path}",
+            f"METODO: {request.method}",
+            f"ID_CLIENTE: {id_cliente}",
+            f"CUENTA: {account}",
+            f"VENDEDOR: {seller}",
+            f"FECHA_VISITA: {raw_date}",
+            f"VISITADO: {visited}",
+            f"VISITA_INDEX: {index}",
+            f"MENSAJE: {message}",
+            f"EXCEPCION_API: {repr(exception) if exception else ''}",
+            "RESULTADO_SQL:",
+            self._format_log_value(result),
+            "VISITA:",
+            self._format_log_value(visit),
+            "INSERT_COMPLETO:",
+            sql or "No se llego a generar el insert.",
+        ]
+
+        Log.create_v3_order("\n".join(lines), id_cliente, type, token=self.token_global)
+
+    def _build_visits_sql(self, visits: list[dict]) -> str:
+        statements = [
+            """
+            SET NOCOUNT ON;
+            SET XACT_ABORT ON;
+
+            DECLARE @NextNroMov INT;
+            DECLARE @Updated INT = 0;
+            DECLARE @Inserted INT = 0;
+            DECLARE @Fecha date;
+            DECLARE @IdComprobante NVARCHAR(100);
+
+            BEGIN TRY
+                BEGIN TRAN;
+
+                SELECT @NextNroMov = ISNULL(MAX(NroMov), 0)
+                FROM V_MV_STATUS WITH (TABLOCKX, HOLDLOCK);
+            """
+        ]
+
+        for visit in visits:
+            statements.append(
+                f"""
+                SET @Fecha = CONVERT(date, '{visit['date']}', 103);
+                SET @IdComprobante = 'Vdor:{visit['seller']}|Vis:{visit['visited']}';
+
+                UPDATE V_MV_STATUS
+                SET
+                    FechaHora = @Fecha,
+                    Usuario = 'Vendedor App',
+                    Observaciones = '{visit['obs']}'
+                WHERE TC = 'VV'
+                  AND IdComprobante = @IdComprobante
+                  AND Cuenta = '{visit['account']}'
+                  AND FechaHora >= @Fecha
+                  AND FechaHora < DATEADD(day, 1, @Fecha);
+
+                IF @@ROWCOUNT = 0
+                BEGIN
+                    SET @NextNroMov = @NextNroMov + 1;
+
+                    INSERT INTO V_MV_STATUS
+                    (
+                        NroMov,
+                        UNegocio,
+                        TC,
+                        IdComprobante,
+                        IdTarea,
+                        IdEstado,
+                        FechaHora,
+                        Usuario,
+                        Cuenta,
+                        Observaciones,
+                        Secuencia,
+                        IdTecnico
+                    )
+                    VALUES
+                    (
+                        @NextNroMov,
+                        '   1',
+                        'VV',
+                        @IdComprobante,
+                        '',
+                        '',
+                        @Fecha,
+                        'Vendedor App',
+                        '{visit['account']}',
+                        '{visit['obs']}',
+                        1,
+                        ''
+                    );
+
+                    SET @Inserted = @Inserted + 1;
+                END
+                ELSE
+                BEGIN
+                    SET @Updated = @Updated + 1;
+                END
+                """
+            )
+
+        statements.append(
+            """
+                COMMIT TRAN;
+
+                SELECT
+                    CAST(11 AS INT) AS pRes,
+                    CAST(@Inserted AS INT) AS inserted,
+                    CAST(@Updated AS INT) AS updated,
+                    CAST(N'Visitas grabadas correctamente.' AS NVARCHAR(250)) AS pMensaje;
+            END TRY
+            BEGIN CATCH
+                IF XACT_STATE() <> 0
+                    ROLLBACK TRAN;
+
+                SELECT
+                    CAST(CASE WHEN ERROR_NUMBER() IS NULL THEN 50000 ELSE ERROR_NUMBER() END AS INT) AS pRes,
+                    CAST(0 AS INT) AS inserted,
+                    CAST(0 AS INT) AS updated,
+                    CAST(LEFT(ISNULL(ERROR_MESSAGE(), N'Error al grabar visitas.'), 250) AS NVARCHAR(250)) AS pMensaje;
+            END CATCH
+            """
+        )
+
+        return "\n".join(statements)
+
     def index(self):
         sql = f"""
         SELECT ltrim(idvendedor) as idvendedor, ltrim(nombre) as nombre,isnull(ltrim(clave),'1') as clave
@@ -141,11 +325,10 @@ class ViewSeller(MasterView):
         """
 
         if id_seller:
-            response = self.get_response(query, f"Ocurrió un error al obtener la configuración del vendedor", True, False)
+            response = self.get_response(query, f"OcurriÃ³ un error al obtener la configuraciÃ³n del vendedor", True, False)
         else:
             response = []
 
-        # print(response)
         return set_response(response, 200)
 
     @route('/visitas/<string:id>/<int:dia>')
@@ -171,50 +354,152 @@ class ViewSeller(MasterView):
 
     @route('/visits', methods=['POST'])
     def set_visits(self):
-        data = request.get_json()
-
-        for visit in data:
-            raw_date = visit.get('date')          # "04/02/2026"  (dd/mm/yyyy)
-            id_seller = visit.get('seller')
-            obs = visit.get('obs', '')
-            account = visit.get('account')
-            visited = visit.get('visited')
-
-            id_comprobante = f"Vdor:{id_seller}|Vis:{visited}"
-
-            query = f"""
-            DECLARE @Fecha date = CONVERT(date, '{raw_date}', 103);  -- 103 = dd/mm/yyyy
-
-            UPDATE V_MV_STATUS
-            SET
-                FechaHora     = @Fecha,
-                Usuario       = 'Vendedor App',
-                Observaciones = '{obs}'
-            WHERE TC = 'VV'
-            AND IdComprobante = '{id_comprobante}'
-            AND Cuenta = '{account}'
-            AND CONVERT(date, FechaHora) = @Fecha;
-
-            IF @@ROWCOUNT = 0
-            BEGIN
-                INSERT INTO V_MV_STATUS
-                (UNegocio, TC, IdComprobante, IdTarea, IdEstado, FechaHora,
-                Usuario, Cuenta, Observaciones, Secuencia, IdTecnico, NroMov)
-                VALUES
-                ('   1','VV','{id_comprobante}','','', @Fecha,
-                'Vendedor App','{account}','{obs}',1,'',
-                (SELECT ISNULL(MAX(NroMov),0)+1 FROM V_MV_STATUS))
-            END
-            """
-
-            response = self.get_response(
-                query,
-                "Ocurrió un error al obtener la configuración del vendedor",
-                False,
-                True
+        data = request.get_json(silent=True)
+        if not isinstance(data, list) or len(data) == 0:
+            return set_response(
+                [],
+                400,
+                "Debe enviar una lista JSON de visitas en el body."
             )
 
-        return set_response(response, 200)
+        response = []
+        normalized_visits = []
+
+        for index, visit in enumerate(data, start=1):
+            if not isinstance(visit, dict):
+                self._log_visit_send(index, visit, "", "La visita no tiene un formato JSON valido.", stage="VALIDACION")
+                return set_response(
+                    [],
+                    400,
+                    f"La visita #{index} no tiene un formato JSON valido."
+                )
+
+            raw_date = visit.get("date")
+            id_seller = self._escape_sql_text(visit.get("seller"))
+            obs = self._escape_sql_text(visit.get("obs", ""))
+            account = self._escape_sql_text(visit.get("account"))
+            visited_raw = visit.get('visited')
+            visited = self._escape_sql_text(visited_raw)
+
+            missing_fields = []
+            if not raw_date:
+                missing_fields.append('date')
+            if not id_seller:
+                missing_fields.append('seller')
+            if not account:
+                missing_fields.append('account')
+            if visited_raw is None or visited == '':
+                missing_fields.append('visited')
+
+            if missing_fields:
+                self._log_visit_send(
+                    index,
+                    visit,
+                    "",
+                    f"Faltan campos obligatorios: {', '.join(missing_fields)}.",
+                    stage="VALIDACION",
+                )
+                return set_response(
+                    [],
+                    400,
+                    f"La visita #{index} no se pudo procesar porque faltan campos obligatorios: {', '.join(missing_fields)}."
+                )
+
+            normalized_date = self._normalize_visit_date(raw_date)
+            if not normalized_date:
+                self._log_visit_send(index, visit, "", f"Fecha invalida: {raw_date}.", stage="VALIDACION")
+                return set_response(
+                    [],
+                    400,
+                    f"La visita #{index} tiene una fecha invalida: {raw_date}."
+                )
+
+            normalized_visits.append({
+                "index": index,
+                "raw": visit,
+                "seller": id_seller,
+                "account": account,
+                "visited": visited,
+                "date": normalized_date,
+                "obs": obs,
+            })
+
+        query = self._build_visits_sql(normalized_visits)
+
+        result = []
+        try:
+            result, error = exec_customer_sql(
+                query,
+                " al grabar las visitas",
+                self.token_global,
+                True
+            )
+        except Exception as e:
+            result = []
+            error = True
+            self._log_visit_send(
+                0,
+                {"count": len(normalized_visits), "visits": data},
+                query,
+                "Excepcion no controlada al grabar las visitas.",
+                stage="EXCEPCION_API",
+                exception=e,
+            )
+
+        if error or not result:
+            message = "Error al grabar las visitas."
+            if result and isinstance(result[0], dict):
+                message = str(result[0].get("message", message))
+            self._log_visit_send(
+                0,
+                {"count": len(normalized_visits), "visits": data},
+                query,
+                message,
+                stage="ERROR_SQL",
+                result=result,
+            )
+            self.log(f"Error al grabar visitas. Resultado: {result}")
+            return set_response(
+                [],
+                500,
+                "La API recibio las visitas, pero ocurrio un error al grabarlas en la base de datos del cliente."
+            )
+
+        result_row = result[0]
+        result_code = int(result_row[0] or 0)
+        inserted = int(result_row[1] or 0)
+        updated = int(result_row[2] or 0)
+        result_message = str(result_row[3] or "")
+
+        if result_code != 11:
+            self._log_visit_send(
+                0,
+                {"count": len(normalized_visits), "visits": data},
+                query,
+                result_message or "Error al grabar las visitas.",
+                stage="CODIGO_SQL_ERROR",
+                result=result,
+            )
+            return set_response(
+                [],
+                500,
+                result_message or "La API recibio las visitas, pero ocurrio un error al grabarlas en la base de datos del cliente."
+            )
+
+        for visit in normalized_visits:
+            response.append({
+                "seller": visit["seller"],
+                "account": visit["account"],
+                "visited": visit["visited"],
+                "date": visit["date"],
+                "status": "ok",
+            })
+
+        return set_response(
+            response,
+            200,
+            f"Visitas grabadas correctamente. Insertadas: {inserted}. Actualizadas: {updated}."
+        )
 
     @route('/location/<string:id>')
     def get_location(self, id: str):

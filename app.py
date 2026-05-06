@@ -13,8 +13,10 @@ from typing import Any, Dict, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
 from pathlib import Path
+from werkzeug.exceptions import HTTPException
 
 from auth import validate_api_key
+from functions.Log import Log
 
 from routes.v2.admin import admin
 
@@ -23,6 +25,7 @@ from routes.v2.auth import AuthView
 from routes.v2.budget import BudgetView
 from routes.v2.cashbox import CashBoxView
 from routes.AGW.V1.card_reconciliation import AGWCardReconciliationView
+from routes.AGW.V1.Control import AGWControlView
 from routes.v2.customer import CustomerView
 from routes.v2.family import FamilyView
 from routes.v2.helpdesk import HelpDeskView
@@ -298,7 +301,7 @@ mail = Mail(app)
 api_cors_config = {
     "origins": "*",
     "methods": ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
-    "allow_headers": ["Authorization", "Content-Type"]
+    "allow_headers": ["Authorization", "Content-Type", "X-API-Key", "API_KEY"]
 }
 
 CORS(app, resources={"/api/*": api_cors_config, "/AGW/*": api_cors_config},
@@ -326,6 +329,7 @@ SalesView.register(app, route_base=f'{API_PREFIX}/sales')
 ManagementView.register(app, route_base=f'{API_PREFIX}/management')
 CashBoxView.register(app, route_base=f'{API_PREFIX}/cashbox')
 AGWCardReconciliationView.register(app, route_base='/AGW/V1/card-reconciliation')
+AGWControlView.register(app, route_base='/AGW/V1/control')
 StockView.register(app, route_base=f'{API_PREFIX}/stock')
 SessionView.register(app, route_base=f'{API_PREFIX}/session')
 UserContactView.register(app, route_base=f'{API_PREFIX}/contact')
@@ -569,6 +573,28 @@ def ping():
     })
 
 
+@app.route('/api/v2/', strict_slashes=False)
+def ping_v2():
+    return jsonify({
+        'status': 'success',
+        'message': 'API v2 disponible',
+        'version': 'v2',
+        'time': datetime.now().isoformat(),
+        'error': False
+    })
+
+
+@app.route('/api/v3/', strict_slashes=False)
+def ping_v3():
+    return jsonify({
+        'status': 'success',
+        'message': 'API v3 disponible',
+        'version': 'v3',
+        'time': datetime.now().isoformat(),
+        'error': False
+    })
+
+
 @app.route('/api/test')
 def test():
     return 'Servidor funcionando!'
@@ -585,6 +611,61 @@ def serie(codigo):
         nro_serie += str(int(ord(num)) + codigo.__len__()).zfill(3)
 
     return jsonify({'serie': "0-" + nro_serie + "-0"})
+
+
+def _is_api_error_request() -> bool:
+    path = (request.path or "").strip()
+    return path.startswith('/api/') or path.startswith('/AGW/')
+
+
+def _json_error_response(status_code: int, message: str, detail: str = ''):
+    payload = {
+        'error': True,
+        'status_code': status_code,
+        'message': message,
+        'data': None,
+    }
+    if detail:
+        payload['detail'] = detail
+    return jsonify(payload), status_code
+
+
+@app.errorhandler(HTTPException)
+def handle_http_exception(exc: HTTPException):
+    if not _is_api_error_request():
+        return exc
+
+    status_code = int(exc.code or 500)
+    messages = {
+        400: 'La solicitud no tiene el formato esperado.',
+        401: 'No autorizado. Verifique el token o la API key.',
+        403: 'Acceso denegado.',
+        404: 'La ruta solicitada no existe en la API.',
+        405: 'El metodo HTTP no es valido para esta ruta.',
+        415: 'El servidor esperaba JSON valido y Content-Type application/json.',
+    }
+    message = messages.get(status_code, exc.description or 'Ocurrio un error al procesar la solicitud.')
+    detail = ''
+    if status_code in (400, 415) and exc.description:
+        detail = str(exc.description)
+    return _json_error_response(status_code, message, detail)
+
+
+@app.errorhandler(Exception)
+def handle_unexpected_exception(exc: Exception):
+    app.logger.exception('Unhandled exception while processing request.')
+
+    if isinstance(exc, HTTPException):
+        return exc
+
+    if _is_api_error_request():
+        return _json_error_response(
+            500,
+            'Ocurrio un error interno del servidor al procesar la solicitud.',
+            str(exc),
+        )
+
+    return _json_error_response(500, 'Ocurrio un error interno del servidor.', str(exc))
 
 
 # Filtros Jinja personalizados

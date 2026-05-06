@@ -27,9 +27,11 @@ class ViewAuth(FlaskView):
 
     @route("/login", methods=["POST"])
     def login(self):
-        data = request.get_json()
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return set_response(None, 400, "Debe enviar un JSON valido para iniciar sesion.")
 
-        type = data["type"] if data["type"] else ADMIN_ACCESS
+        type = (data.get("type") or ADMIN_ACCESS).strip().lower()
 
         error = False
         if type == SELLER_ACCESS:
