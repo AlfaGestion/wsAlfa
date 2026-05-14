@@ -25,6 +25,24 @@ class Payment:
         self.internal_id = ""
         self.checks_data = []
         self.db_token = ""
+        self.last_sql = ""
+        self.last_stage = ""
+        self.last_error = ""
+
+    def __set_last_sql(self, stage: str, sql: str):
+        self.last_stage = stage
+        self.last_sql = sql
+        self.last_error = ""
+
+    def __set_last_error(self, error):
+        self.last_error = str(error)
+
+    def __format_error(self, result):
+        if isinstance(result, list) and result:
+            item = result[0]
+            if isinstance(item, dict):
+                return str(item.get("message", item))
+        return str(result)
 
     def set_db_token(self, token: str):
         self.db_token = token
@@ -74,13 +92,17 @@ class Payment:
         SELECT @pRes as pRes, @pMensaje as pMensaje, @pIdCpte as pIdCpte
         """
 
+        self.__set_last_sql("CREAR_COBRANZA", query)
+
         try:
             result, error = exec_customer_sql(query, "", self.db_token, True)
         except Exception as r:
             error = True
+            result = [{'message': r}]
 
         if error:
-            Log.create(str(result[0]['message']) + "\nSENTENCIA : " + query)
+            self.__set_last_error(self.__format_error(result))
+            Log.create(self.last_error + "\nSENTENCIA : " + query)
             return set_response(None, 404, "Ocurrió un error al grabar la cobranza en V_MV_CPTE")
 
         payment_id = result[0][2]
@@ -116,10 +138,14 @@ class Payment:
                     amount_applicate = current_amount
                     current_amount = 0
 
-                self.__create_application(payment_id, item['tc'], item['number'], amount_applicate)
+                result = self.__create_application(payment_id, item['tc'], item['number'], amount_applicate)
+                if isinstance(result, dict) and result.get('error', False):
+                    return result
 
         if not self.application_invoices:
-            self.__auto_application(self.type_payment, self.customer_account, self.internal_id)
+            result = self.__auto_application(self.type_payment, self.customer_account, self.internal_id)
+            if isinstance(result, dict) and result.get('error', False):
+                return result
 
     def __auto_application(self, tc: str, account: str, paymentWebId: str = ''):
         sql = f"""
@@ -131,6 +157,8 @@ class Payment:
         ALTER TABLE MV_ASIENTOS ENABLE TRIGGER TRG_ValidaFPEF
         SELECT @pRes as pRes, @pMensaje as pMensaje
         """
+        self.__set_last_sql("APLICACION_AUTOMATICA", sql)
+        result = []
 
         try:
             result, error = exec_customer_sql(sql, f" al generar la aplicación automática",  self.db_token)
@@ -138,7 +166,8 @@ class Payment:
             error = True
 
         if error:
-            Log.create(str(result) + "\nSENTENCIA : " + sql)
+            self.__set_last_error(self.__format_error(result))
+            Log.create(self.last_error + "\nSENTENCIA : " + sql)
             return set_response(None, 404, "Ocurrió un error al generar la aplicación automática. Intente nuevamente.")
 
     def __create_application(self, payment_id: str, tc_invoice: str, number_invoice: str, amount: float):
@@ -151,14 +180,18 @@ class Payment:
 
         SELECT @pResultado as pResultado, @pMensaje as pMensaje
         """
+        self.__set_last_sql("CREAR_APLICACION", sql)
+        result = []
+
         try:
             result, error = exec_customer_sql(sql, f".No se pudo generar la aplicación. \n {sql}", self.db_token, True)
         except Exception as f:
             error = True
 
         if error:
+            self.__set_last_error(self.__format_error(result))
             self.__onerror_delete(payment_id)
-            Log.create(str(result[0]['message']) + "\nSENTENCIA : " + sql)
+            Log.create(self.last_error + "\nSENTENCIA : " + sql)
             return set_response(None, 404, "No se pudo generar la aplicación")
 
     def __create_line(self, payment_id, amount: float, account: str, first_record=True, check_number: str = '', check_expiration: str = '', check_bank: str = '') -> bool:
@@ -174,14 +207,17 @@ class Payment:
 
         SELECT @pResultado as pResultado, @pMensaje as pMensaje
         """
+        self.__set_last_sql("CREAR_LINEA_ASIENTO", sql)
+        result = []
         try:
             result, error = exec_customer_sql(sql, f".No se pudo grabar el medio de pago. \n {sql}", self.db_token, True)
         except Exception as f:
             error = True
 
         if error:
+            self.__set_last_error(self.__format_error(result))
             self.__onerror_delete(payment_id)
-            Log.create(str(result[0]['message']) + "\nSENTENCIA : " + sql)
+            Log.create(self.last_error + "\nSENTENCIA : " + sql)
             # return set_response(None, 404, "Ocurrió un error al grabar el medio de pago")
 
         return not error

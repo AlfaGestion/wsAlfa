@@ -267,12 +267,10 @@ class ViewOrder(MasterView):
         DECLARE @Usuario NVARCHAR(255) = NULL;
 
         BEGIN TRY
-            BEGIN TRAN;
-
             EXEC @LockResult = sp_getapplock
                 @Resource = '{safe_lock_resource}',
                 @LockMode = 'Exclusive',
-                @LockOwner = 'Transaction',
+                @LockOwner = 'Session',
                 @LockTimeout = {self.LOCK_TIMEOUT_MS};
 
             IF @LockResult < 0
@@ -289,7 +287,10 @@ class ViewOrder(MasterView):
 
             IF @ExistingId IS NOT NULL
             BEGIN
-                COMMIT TRAN;
+                EXEC sp_releaseapplock
+                    @Resource = '{safe_lock_resource}',
+                    @LockOwner = 'Session';
+
                 SELECT
                     CAST(11 AS INT) AS pRes,
                     CAST(N'Pedido ya procesado.' AS NVARCHAR(250)) AS pMensaje,
@@ -385,7 +386,9 @@ class ViewOrder(MasterView):
 
             {items_sql}
 
-            COMMIT TRAN;
+            EXEC sp_releaseapplock
+                @Resource = '{safe_lock_resource}',
+                @LockOwner = 'Session';
 
             SELECT
                 @pRes AS pRes,
@@ -394,8 +397,14 @@ class ViewOrder(MasterView):
                 CAST(0 AS BIT) AS pDuplicado;
         END TRY
         BEGIN CATCH
-            IF XACT_STATE() <> 0
+            IF XACT_STATE() <> 0 OR @@TRANCOUNT > 0
+            BEGIN
                 ROLLBACK TRAN;
+            END
+
+            EXEC sp_releaseapplock
+                @Resource = '{safe_lock_resource}',
+                @LockOwner = 'Session';
 
             SELECT
                 CAST(CASE WHEN ERROR_NUMBER() IS NULL THEN 50000 ELSE ERROR_NUMBER() END AS INT) AS pRes,
@@ -468,6 +477,16 @@ class ViewOrder(MasterView):
                 return set_response(None, 400, f"El pedido #{index} no tiene un formato JSON valido.")
 
             account = order.get("account", "")
+            if not str(account or "").strip() or str(account).strip().lower() == "none":
+                self._log_failed_order(
+                    index,
+                    order,
+                    "",
+                    "El pedido no tiene cuenta de cliente. No se puede generar el comprobante.",
+                    stage="VALIDACION_CUENTA",
+                )
+                return set_response(None, 400, "El pedido no tiene cuenta de cliente. No se puede generar el comprobante.")
+
             date_raw = order.get("date", datetime.now().strftime("%d/%m/%Y"))
             date = self._normalize_date_only(date_raw)
             date_time = self._normalize_datetime(date_raw)
