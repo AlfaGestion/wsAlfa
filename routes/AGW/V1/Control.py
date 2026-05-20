@@ -10,7 +10,7 @@ from config import DB_NAME, DB_PASS, DB_SERVER, DB_USER, DB_VERSION
 from functions.responses import set_response
 from routes.v2.master import MasterView
 
-CONTROL_DB_SERVER = 'SERVER-VPN2022'
+CONTROL_DB_SERVER = '10.8.0.31'
 CONTROL_DB_USER = 'ESTADISTICAS'
 CONTROL_DB_PASS = 'ESTADISTICAS'
 CONTROL_DB_VERSION = '11.0'

@@ -37,6 +37,34 @@ class Payment:
     def __set_last_error(self, error):
         self.last_error = str(error)
 
+    def __disable_valida_fpef_trigger_sql(self) -> str:
+        return """
+        IF EXISTS (
+            SELECT 1
+            FROM sys.triggers tr
+            INNER JOIN sys.objects obj ON tr.parent_id = obj.object_id
+            WHERE tr.name = N'TRG_ValidaFPEF'
+              AND obj.name = N'MV_ASIENTOS'
+        )
+        BEGIN
+            ALTER TABLE MV_ASIENTOS DISABLE TRIGGER TRG_ValidaFPEF
+        END
+        """
+
+    def __enable_valida_fpef_trigger_sql(self) -> str:
+        return """
+        IF EXISTS (
+            SELECT 1
+            FROM sys.triggers tr
+            INNER JOIN sys.objects obj ON tr.parent_id = obj.object_id
+            WHERE tr.name = N'TRG_ValidaFPEF'
+              AND obj.name = N'MV_ASIENTOS'
+        )
+        BEGIN
+            ALTER TABLE MV_ASIENTOS ENABLE TRIGGER TRG_ValidaFPEF
+        END
+        """
+
     def __format_error(self, result):
         if isinstance(result, list) and result:
             item = result[0]
@@ -152,9 +180,9 @@ class Payment:
         DECLARE @pRes INT
         DECLARE @pMensaje NVARCHAR(250)
 
-        ALTER TABLE MV_ASIENTOS DISABLE TRIGGER TRG_ValidaFPEF
+        {self.__disable_valida_fpef_trigger_sql()}
         set nocount on; EXEC sp_web_AplicacionCobranzaAutomatica '{tc}','{account}','{paymentWebId}',@pRes OUTPUT, @pMensaje OUTPUT
-        ALTER TABLE MV_ASIENTOS ENABLE TRIGGER TRG_ValidaFPEF
+        {self.__enable_valida_fpef_trigger_sql()}
         SELECT @pRes as pRes, @pMensaje as pMensaje
         """
         self.__set_last_sql("APLICACION_AUTOMATICA", sql)
