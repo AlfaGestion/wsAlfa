@@ -131,6 +131,13 @@ class Log:
         return os.path.join("logs", "_log_state.json")
 
     @staticmethod
+    def _resolve_login_web_path():
+        date = datetime.now().strftime("%d-%m-%Y")
+        log_dir = os.path.join("logs", "login_web")
+        os.makedirs(log_dir, exist_ok=True)
+        return os.path.join(log_dir, f"login_web_{date}.log")
+
+    @staticmethod
     def _write(prefix: str, data, code_account="", type="WARNING", token: str = ""):
         time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         try:
@@ -200,6 +207,16 @@ class Log:
         try:
             os.makedirs("logs", exist_ok=True)
             with open(f"logs/LOG_Ingreso{resolved_account}_{date}.log", "a", encoding="utf-8") as file:
+                file.write(f"\n{type}: {time}\n{data}")
+        except Exception:
+            pass
+
+    @staticmethod
+    def create_login_web(data, type="INFO"):
+        time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        try:
+            file_path = Log._resolve_login_web_path()
+            with open(file_path, "a", encoding="utf-8") as file:
                 file.write(f"\n{type}: {time}\n{data}")
         except Exception:
             pass

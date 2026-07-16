@@ -2,6 +2,7 @@ from functions.general_customer import exec_customer_sql, get_customer_response
 from datetime import datetime
 from functions.responses import set_response
 from functions.Log import Log
+from functions.Account import Customer
 from rich import print
 
 
@@ -107,6 +108,27 @@ class Payment:
 
     def save(self):
         payment_id = 0
+        if not self.customer_account:
+            self.__set_last_sql("VALIDAR_CLIENTE", "")
+            self.__set_last_error("La cobranza no informa cuenta de cliente.")
+            Log.create(self.last_error)
+            return set_response(None, 404, "La cobranza no informa cuenta de cliente.")
+
+        customer = Customer(self.customer_account, self.db_token)
+        if not customer.exists:
+            self.__set_last_sql(
+                "VALIDAR_CLIENTE",
+                f"SELECT codigo FROM VT_CLIENTES WHERE codigo='{self.customer_account}'"
+            )
+            self.__set_last_error(
+                f"No existe el cliente {self.customer_account} en VT_CLIENTES."
+            )
+            Log.create(self.last_error + "\nSENTENCIA : " + self.last_sql)
+            return set_response(
+                None,
+                404,
+                f"No existe el cliente {self.customer_account}. Debe darse de alta o sincronizarse antes de grabar la cobranza."
+            )
         """
         Genero la cobranza
         """

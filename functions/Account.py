@@ -53,28 +53,23 @@ class Account:
         
         self.__load()
 
-    def __load(self):
-
-        query = f"""
+    def __customer_query(self, where_clause: str) -> str:
+        return f"""
         SELECT codigo,razon_social,isnull(mail,'') as mail,isnull(telefono,'') as telefono, isnull(ltrim(iva),'1') as iva,
         isnull(ltrim(numero_documento),'') as cuit,isnull(documento_tipo,'1') as documento_tipo,
         isnull(CALLE + ' ' + NUMERO + ' ' + LOCALIDAD,'') as domicilio,
         isnull(calle,'') as calle, isnull(numero,'') as numero, isnull(localidad,'') as localidad
-        ,isnull(ltrim(idlista),'') as idlista, ltrim(clase) as clase,
+        ,isnull(ltrim(idlista), '') as idlista, ltrim(clase) as clase,
         isnull(cpostal,'') as cpostal, isnull(observaciones,'') as observaciones,
         isnull(contacto,'') as contacto, isnull(ltrim(idvendedor),'') as idvendedor
-        from {self.table} where codigo='{self.code}' and dada_de_baja=0 and bloqueo=0
+        from {self.table}
+        {where_clause}
         """
-        
-        result, error = exec_customer_sql(query, " al obtener la cuenta", self.TOKEN, True)
 
-        if error:
-            Log.create(result, '', 'ERROR')
-            return
-
+    def __load_from_result(self, result):
         if len(result) == 0:
-            return
-        
+            return False
+
         self.exists = True
         self.code = result[0][0]
         self.name = result[0][1]
@@ -97,6 +92,44 @@ class Account:
         self.observations = result[0][14]
         self.contact = result[0][15]
         self.id_seller = result[0][16]
+        return True
+
+    def __load_by_web_marker(self) -> bool:
+        if not self.code:
+            return False
+
+        web_marker = f"id_app {self.code}".replace("'", "''")
+        query = f"""
+        SELECT TOP 1 a.CODIGO
+        FROM MA_CUENTASADIC a
+        INNER JOIN VT_CLIENTES b ON a.CODIGO = b.CODIGO
+        WHERE LTRIM(RTRIM(a.WEB)) = '{web_marker}'
+          AND b.DADA_DE_BAJA = 0
+          AND b.BLOQUEO = 0
+        """
+
+        result, error = exec_customer_sql(query, " al buscar el cliente por web", self.TOKEN, True)
+        if error or len(result) == 0:
+            return False
+
+        self.code = result[0][0]
+        return self.__load()
+
+    def __load(self):
+        query = self.__customer_query(
+            f"where codigo='{self.code}' and dada_de_baja=0 and bloqueo=0"
+        )
+        
+        result, error = exec_customer_sql(query, " al obtener la cuenta", self.TOKEN, True)
+
+        if error:
+            Log.create(result, '', 'ERROR')
+            return
+
+        if not self.__load_from_result(result):
+            self.__load_by_web_marker()
+            return
+        
 
     def get_balance(self) -> float:
         """Retorna el saldo de una cuenta"""
